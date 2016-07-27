@@ -140,15 +140,15 @@ Modal.prototype.resetMailForm = function (){
   document.querySelector('.success-send-close-btn').style.display = 'none';
 
   // clear form fields and show them
-  var name = document.querySelector('#contact-from input[name="name"]');
+  var name = document.querySelector('#contact-form input[name="name"]');
   name.value = '';
   name.style.display = 'block';
 
-  var email = document.querySelector('#contact-from input[name="email"]');
+  var email = document.querySelector('#contact-form input[name="email"]');
   email.value = '';
   email.style.display = 'block';
 
-  var message = document.querySelector('#contact-from input[name="message"]');
+  var message = document.querySelector('#contact-form input[name="message"]');
   message.value = '';
   message.style.display = 'block';
 
