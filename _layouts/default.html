@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }}</title>
+
+  {% include meta.html %}
+
+  <link href='https://fonts.googleapis.com/css?family=Play:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Kanit:400,800' rel='stylesheet' type='text/css'>
+
+  <link rel="alternate" type="application/rss+xml" title="{{ site.name }} - {{ site.description }}"
+        href="{{ site.baseurl }}/feed.xml"/>
+  <link href="{{ site.baseurl }}/assets/images/favicon.png" rel="shortcut icon" type="image/png"/>
+  <link href="{{ site.baseurl }}/assets/css/normalize.css" rel="stylesheet">
+  <link href="{{ site.baseurl }}/assets/lib/fontawesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="{{ site.baseurl }}/assets/lib/animate/animate.min.css" rel="stylesheet">
+  <link href="{{ site.baseurl }}/assets/css/styles.css" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="main-header">
+
+  <button type="button" id="navbar-btn">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <ul id="top-nav">
+    <li class="link-main active"><a href="{{ site.baseurl }}/">Dmitry's Blog</a></li>
+    <li class="link-about"><a href="{{ site.baseurl }}/about">About</a></li>
+    <li class="link-contacts"><a href="{{ site.baseurl }}/contacts">Contacts</a></li>
+  </ul>
+
+  <ul class="social-box">
+    {% include social-icons.html %}
+  </ul>
+</header>
+
+<main role="main">
+  {{ content }}
+</main>
+
+<footer class="main-footer">
+  <ul class="social-box">
+    {% include social-icons.html %}
+  </ul>
+</footer>
+
+<form id="contact-form" class="hidden" action="/" method="POST">
+  <input class="mail-text" type="text" name="name" spellcheck="false" placeholder="Name" required="">
+  <input class="mail-text" type="email" name="email" spellcheck="false" placeholder="Email" required="">
+  <textarea class="mail-text" rows="3" name="message" spellcheck="false" placeholder="Message" required=""></textarea>
+  <button class="send-btn" type="submit">send message</button>
+</form>
+
+<div id="modal-overlay"></div>
+
+{% include analytics.html %}
+
+<script src="{{ site.baseurl }}/assets/js/class.navigation.js"></script>
+<script src="{{ site.baseurl }}/assets/js/class.modal.js"></script>
+<script src="{{ site.baseurl }}/assets/js/main.js"></script>
+</body>
+</html>

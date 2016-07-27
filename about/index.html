@@ -1,0 +1,26 @@
+---
+layout: default
+---
+<section class="jumbotron">
+  <h1 class="max-width-limited">Deep & Reinforcement Learning</h1>
+  <!--<div class="intro max-width-limited">
+    <p>
+      
+    </p>-->
+  </div>
+</section>
+
+<article class="page-main max-width-limited">
+  {% for post in site.posts %}
+
+  <div class="post">
+    <div class="post__date">{{ post.date | date: "%B %-d, %Y" }}</div>
+    <h2 class="post__title"><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
+    <div class="post__preview">
+      {{ post.excerpt }}
+    </div>
+    <div class="post__border"></div>
+  </div>
+
+  {% endfor %}
+</article>
