@@ -135,15 +135,10 @@ Modal.prototype.showSuccessText = function (){
 Modal.prototype.resetMailForm = function (){
   var self = this;
 
-  // hide success fields
-  document.querySelector('.success-send-msg').style.display = 'none';
-  document.querySelector('.success-send-close-btn').style.display = 'none';
-
-  // clear form fields and show them
-  var elements = document.getElementsByClassName("form-val");
-  for (var i = 0; i < elements.length; i++) {
-    elements[i].value = '';
-    elements[i].style.display = 'block';
-  }
-  document.querySelector('#contact-form .send-btn').style.display = 'block';
+  document.getElementById("contact-form").innerHTML =
+    '<input class="mail-text form-val" type="text" name="name" spellcheck="false" placeholder="Name" required="">\
+     <textarea class="mail-text form-val" rows="3" name="message" spellcheck="false" placeholder="Message" required=""></textarea>\
+     <button class="send-btn" type="submit">send message</button>\
+     <div class="success-send-msg">Your message has been successfully sent!</div>\
+     <button class="success-send-close-btn" type="button">OK</button>';
 };
