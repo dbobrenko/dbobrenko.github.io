@@ -363,6 +363,7 @@ main {
   margin-bottom: 20px; }
 
 .success-send-close-btn {
+  display: none;
   border: 0;
   padding: 10px;
   width: 30%;
