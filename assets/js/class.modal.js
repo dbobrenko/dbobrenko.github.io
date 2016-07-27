@@ -140,17 +140,10 @@ Modal.prototype.resetMailForm = function (){
   document.querySelector('.success-send-close-btn').style.display = 'none';
 
   // clear form fields and show them
-  var name = document.querySelector('#contact-form input[name="name"]');
-  name.value = '';
-  name.style.display = 'block';
-
-  var email = document.querySelector('#contact-form input[name="email"]');
-  email.value = '';
-  email.style.display = 'block';
-
-  var message = document.querySelector('#contact-form input[name="message"]');
-  message.value = '';
-  message.style.display = 'block';
-
+  var elements = document.getElementsByClassName("form-val");
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].value = '';
+    elements[i].style.display = 'block';
+  }
   document.querySelector('#contact-form .send-btn').style.display = 'block';
 };
