@@ -137,6 +137,7 @@ Modal.prototype.resetMailForm = function (){
 
   document.getElementById("contact-form").innerHTML =
     '<input class="mail-text form-val" type="text" name="name" spellcheck="false" placeholder="Name" required="">\
+     <input class="mail-text form-val" type="email" name="email" spellcheck="false" placeholder="Email" required="">\
      <textarea class="mail-text form-val" rows="3" name="message" spellcheck="false" placeholder="Message" required=""></textarea>\
      <button class="send-btn" type="submit">send message</button>\
      <div class="success-send-msg">Your message has been successfully sent!</div>\
