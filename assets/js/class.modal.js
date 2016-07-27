@@ -42,7 +42,7 @@ Modal.prototype.initHandlers = function () {
   });
 
   // hide success modal
-  document.getElementById('success-send-close-btn').addEventListener("click", function (e) {
+  document.querySelector('.success-send-close-btn').addEventListener("click", function (e) {
     e.preventDefault();
     self.hideOverlay(overlay);
     self.hideContactForm(contactForm);
