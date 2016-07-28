@@ -422,7 +422,8 @@ main {
         margin-top: 20px; } }
 
 .post-content {
-  padding-top: 40px; }
+  padding-top: 40px;
+  margin-bottom: 60px; }
   @media (max-width: 700px) {
     .post-content {
       padding-top: 30px; } }
