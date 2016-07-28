@@ -43,14 +43,23 @@ Modal.prototype.initHandlers = function () {
 
   // hide success modal
   document.querySelector('.success-send-close-btn').addEventListener("click", function (e) {
-    e.preventDefault();
+
+  });
+
+  document.getElementById('contact-form').addEventListener('click', function (event) {
+    var target = event.target;
+    var btn = target.closest('.success-send-close-btn');
+
+    if (!btn) return; // клик вне <td>, не интересует
+
+    event.preventDefault();
     self.hideOverlay(overlay);
     self.hideContactForm(contactForm);
 
     // clear form fields to make available sending new messages
-    setTimeout(function (){
+    setTimeout(function () {
       self.resetMailForm();
-    }, 400)
+    }, 400);
   });
 };
 
@@ -114,12 +123,15 @@ Modal.prototype.submitEmail = function () {
 };
 
 /** Show success window if email sent was successful **/
-Modal.prototype.showSuccessText = function (){
+Modal.prototype.showSuccessText = function () {
   var self = this;
 
   // hide form elements
   var elements = document.getElementsByClassName("form-val");
-  for (var i = 0; i < elements.length; i++) {elements[i].style.display = 'none'};
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].style.display = 'none'
+  };
+
   document.querySelector('#contact-form .send-btn').style.display = 'none';
 
   // show success fields
@@ -132,7 +144,7 @@ Modal.prototype.showSuccessText = function (){
 };
 
 /** Show success window if email sent was successful **/
-Modal.prototype.resetMailForm = function (){
+Modal.prototype.resetMailForm = function () {
   var self = this;
 
   document.getElementById("contact-form").innerHTML =
