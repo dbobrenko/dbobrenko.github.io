@@ -26,6 +26,13 @@ Navigation.prototype.initHandlers = function (){
       self.showTopMenu(topMenu);
     } // end if statement
   }); // end addEventListener
+
+  // close menu if user clicked on body
+  document.addEventListener('click', function (event) {
+    if(topMenu.getAttribute('data-state') === 'opened') {
+      self.hideTopMenu(topMenu);
+    }
+  });
 };
 
 /** Drop-down top menu **/
