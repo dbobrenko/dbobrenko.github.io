@@ -6,7 +6,7 @@
 name: Dmitry Bobrenko's blog
 
 # Short bio or description (displayed in the header if post description doesn't exist)
-description: Blog about deep learning, reinforcement learning, neural networks and artificial intelligence
+description: Blog about Deep Learning, Reinforcement Learning, and Artificial Intelligence
 
 # URL of your avatar or profile pic (you could use your GitHub profile pic)
 avatar: https://raw.githubusercontent.com/barryclark/jekyll-now/master/images/jekyll-logo.png
@@ -20,9 +20,9 @@ social-links:
   facebook:
   vkontakte:
   github: dbobrenko
-  linkedin:
+  linkedin: https://www.linkedin.com/in/dbobrenko
   skype: skype:dbobrenko?chat
-  rss: # just type anything here for a working RSS icon
+  rss: dbobrenko
   stackoverflow: # stackoverflow profile, e.g. "users/50343/username"
   youtube: # channel/<your_long_string> or user/<user-name>
   googleplus: # anything in your profile username that comes after plus.google.com/
@@ -38,13 +38,13 @@ google_analytics: UA-81457115-1
 
 # Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
 # Used for Sitemap.xml and your RSS feed
-url:
+url: dbobrenko.github.io
 
 # If you're hosting your site at a Project repository on GitHub pages
 # (http://yourusername.github.io/repository-name)
 # and NOT your User repository (http://yourusername.github.io)
 # then add in the baseurl here, like this: "/repository-name"
-baseurl: ""
+baseurl: "/dbobrenko.github.io"
 
 #
 # !! You don't need to change any of the configuration flags below !!

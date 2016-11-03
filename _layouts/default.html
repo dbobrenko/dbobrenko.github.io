@@ -28,9 +28,15 @@
   </button>
 
   <ul id="top-nav">
-    <li class="link-main active"><a href="{{ site.baseurl }}/">Dmitry's Blog</a></li>
+    {% for node in site.pages %}
+      {% if page.url == node.url %}
+        <li class="active"><a href="{{node.url}}" class="active">{{node.title}}</a></li>
+      {% else %}
+        <li><a href="{{node.url}}">{{node.title}}</a></li>
+      {% endif %}
+    {% endfor %}
+    <li class="link-main"><a href="{{ site.baseurl }}/">Dmitry's Blog</a></li>
     <li class="link-about"><a href="{{ site.baseurl }}/about">About</a></li>
-    <li class="link-contacts"><a href="{{ site.baseurl }}/contacts">Contacts</a></li>
   </ul>
 
   <ul class="social-box">
@@ -52,7 +58,7 @@
   <input class="mail-text form-val" type="text" name="name" spellcheck="false" placeholder="Name" required="">
   <input class="mail-text form-val" type="email" name="email" spellcheck="false" placeholder="Email" required="">
   <textarea class="mail-text form-val" rows="3" name="message" spellcheck="false" placeholder="Message" required=""></textarea>
-  <button class="send-btn" type="submit">send message</button>
+  <button class="send-btn" type="submit">Send message</button>
 
   <div class="success-send-msg">Your message has been successfully sent!</div>
   <button class="success-send-close-btn" type="button">OK</button>

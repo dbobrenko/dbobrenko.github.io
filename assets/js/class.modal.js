@@ -50,7 +50,7 @@ Modal.prototype.initHandlers = function () {
     var target = event.target;
     var btn = target.closest('.success-send-close-btn');
 
-    if (!btn) return; // клик вне <td>, не интересует
+    if (!btn) return; // click outside <td> - skip
 
     event.preventDefault();
     self.hideOverlay(overlay);
