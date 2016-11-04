@@ -27,7 +27,7 @@ After model is downloaded and unpacked, you can evaluate it by running:
 The resulting videos can be found in *eval/SpaceInvaders-v0/* folder.
 
 {% include image.html
-    img=/assets/posts/async-deeprl/si.gif
+    img="/assets/posts/async-deeprl/si.gif"
     title="Trained agent plays SpaceInvaders Atari 2600 game"
     caption="Figure 1: An illustration of trained agents playing (from left to right): Pong!, SpaceInvaders."
 %}
@@ -88,7 +88,7 @@ They have presented two versions of asynchronous deep Q-Learning: *one-step* and
 In this topic I will walk through one-step version.
 
 {% include image.html
-    img=/assets/posts/async-deeprl/onestep_alg.jpg
+    img="/assets/posts/async-deeprl/onestep_alg.jpg"
     title="Asynchronous Q-Learning algorithm pseudo-code"
     caption="Figure 2: Asynchronous Q-Learning algorithm pseudo-code (Mnih et al,. 2016)."
 %}
