@@ -81,30 +81,28 @@ $$Q(s_t, a_t)$$ is our current prediction $$\hat y$$.
 Intuitively, current loss function optimizes neural network so it's predictions will be equal to the reward $$r_t$$ for given state $$t$$ **plus** maximum **expected** discounted reward $$R_{t+1}$$ for the next state $$t+1$$.  
 And now, if you will think about maximum discounted reward for the next state $$t+1$$, you will find that it also includes maximum discounted reward $$R_{t+2}$$ for the next state $$t+2$$ and so on up to the terminal state. As a result our model will learn to predict maximum discounted future reward.  
 
+
 **Ok. But how it can work?** That seems to be insane, especially for those, who are familiar with supervised learning. Of course, at early iterations, an approximation of $$Q(s_{t+1}, a_{t+1})$$ will return an absolute garbage, however, over a long time of training, prediction of future expected rewards will become more and more accurate and finally it will converge ([a proof of Q-learning convergence](http://users.isr.ist.utl.pt/~mtjspaan/readingGroup/ProofQlearning.pdf)).
 
 
-**Asynchronous one-step and n-step Q-Learning**
-The latest state-of-the-art of DQN was presented in A3C paper. The main change they made since 2013, is asynchronous training in multiple game environments at the same time. Such approach significantly speeds-up convergence, and allows us to train it on a single multicore CPU instead of GPU (compared to vanilla DQN and other deep RL methods).  
+**Asynchronous one-step and n-step Q-Learning**. The main change they made to DQN since 2013 - is asynchronous training in multiple game environments at the same time. Such approach significantly speeds-up convergence, and allows us to train it on a single multicore CPU instead of GPU (compared to vanilla DQN and other deep RL methods).  
 They have presented two versions of asynchronous deep Q-Learning: *one-step* and *n-step* Q-learning. The main difference, is that n-step explicitly computes n-step returns by predicting expected discounted future reward only after `n` steps, backpropagating that on earlier actions, instead of predicting it after each step (detailed nstep method can be found in "4. Asynchronous RL Framework").  
 In this topic I will walk through one-step version.
 
-<p align="center">
 ![alt text][image_onestep_alg]
-  <br><br>
+<p align="center">
   Figure 2: Asynchronous Q-Learning algorithm pseudo-code (Mnih et al,. 2016).
 </p>
 
 ## TensorFlow implementation<a name="Implementation"></a>
 
-TensorFlow sometimes feels a bit low level, and can look a too verbose. There are a lot of wrappers to reduce code, few of them: [keras](https://keras.io/) (used in this post), [slim](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/slim), [tflearn](http://tflearn.org/getting_started/).   
+TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrappers to reduce code, few of them: [keras](https://keras.io/) (used in this post), [slim](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/slim), [tflearn](http://tflearn.org/getting_started/).   
 The first thing we should start from our implementation - is agent. Agent consists of two models - online (training) model and target model. First one predicts, and learns to predict rewards per action for given state; second one predicts expected future rewards for the next state, and used for future reward discounting. Periodically, online model updates target model by copying it's weights. Such approach was introduced in [Deep Reinforcement Learning with Double Q-learning, van Hasselt et al. (2015)](https://arxiv.org/abs/1509.06461) paper and aims to impove DQN performance.
 
-Just a few important things before start:  
+Few important things:  
 1. **Action repeat** is a nice feature that will help to speed-up training process. Since neighbour frames are almost identical to each other, we will repeat last action on the next 4 frames.
-
-   *Keep in mind, that some games have "rounds" (most Atari games do), in order to avoid repeating actions from last game in new one, and not to predict expected future rewards for current game, based on state from the next game, we should handle end of these rounds as terminal states*
-
+   
+   *Keep in mind, that some games have "rounds" (most Atari games do), in order to avoid repeating actions from last game in new one, and not to predict expected future rewards for current game, based on state from the next game, we should handle end of these rounds as terminal states*.  
    Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L120)):
 
 ```python
@@ -118,43 +116,40 @@ def step(env, action_index, action_repeat=4):
             break
     return s, accum_reward, terminal, info
 ```
-
 2. **Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.
 
    In DeepMind paper they solve this problem by taking last four screen images, resizing them into 84x84 and stacking together. So their model at each time step gets a remainder where the objects where 1, 2 and 3 frames ago. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame (implementation can be found [here](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L50)).
-
-
-![alt text][image_input_si] ![alt text][image_input_pong]
+   
+   ![alt text][image_input_si] ![alt text][image_input_pong]
 <p style="text-align: center;">
-  Figure 3: Examples of input screens (modified) of SpaceInvaders (left) and Pong (right) games.
+    Figure 3: Examples of input screens (modified) of SpaceInvaders (left) and Pong (right) games.
 </p>
 3. **Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between "following already explored strategy" or "discovering new ones, maybe better that current". In current paper, they sampled the minimum exploration rate epsilon from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital epsilon anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
 
 Now, let's get back to our agent, to see the whole agent code, go to [agent.py](https://github.com/dbobrenko/asynq-learning/blob/master/agent.py).  
 DQN architecture according to Mnih et al., 2015 (dropout was skipped):
 
- 
-```python
-action_size = 3 # depends on the environment
-def build_model(h, w, channels, fc3_size=256):
-    state = tf.placeholder('float32', shape=(None, h, w, channels))
-    inputs = Input(shape=(h, w, channels,))
-    model = Convolution2D(nb_filter=16, nb_row=8, nb_col=8, subsample=(4,4), activation='relu', 
-                          border_mode='same', dim_ordering='tf')(inputs)
-    model = Convolution2D(nb_filter=32, nb_row=4, nb_col=4, subsample=(2,2), activation='relu',
-                          border_mode='same', dim_ordering='tf')(model)
-    model = Flatten()(model)
-    model = Dense(output_dim=fc3_size, activation='relu')(model)
-    out = Dense(output_dim=action_size, activation='linear')(model)
-    model = Model(input=inputs, output=out)
-    qvalues = model(state)
-    return model, state, qvalues
-```
- 
+    ```python
+    action_size = 3 # depends on the environment
+    def build_model(h, w, channels, fc3_size=256):
+        state = tf.placeholder('float32', shape=(None, h, w, channels))
+        inputs = Input(shape=(h, w, channels,))
+        model = Convolution2D(nb_filter=16, nb_row=8, nb_col=8, subsample=(4,4), activation='relu', 
+                              border_mode='same', dim_ordering='tf')(inputs)
+        model = Convolution2D(nb_filter=32, nb_row=4, nb_col=4, subsample=(2,2), activation='relu',
+                              border_mode='same', dim_ordering='tf')(model)
+        model = Flatten()(model)
+        model = Dense(output_dim=fc3_size, activation='relu')(model)
+        out = Dense(output_dim=action_size, activation='linear')(model)
+        model = Model(input=inputs, output=out)
+        qvalues = model(state)
+        return model, state, qvalues
+    ```
+
 In original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer.  
 Rest agent implementation:
 
-{% highlight python %}
+```python
 with tf.variable_scope('network'):
     action = tf.placeholder('int32', [None], name='action')
     reward = tf.placeholder('float32', [None], name='reward')
@@ -170,7 +165,7 @@ with tf.variable_scope('target_network'):
     target_weights = target_model.trainable_weights
 with tf.variable_scope('target_update'):
     target_update = [target_weights[i].assign(weights[i]) for i in range(len(target_weights))]
-{% endhighlight %}
+```
 
 Now let's wrap all TensorFlow operations into easy-to-read functions:
 
