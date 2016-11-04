@@ -9,13 +9,21 @@ mathjax: true
 
 Deep Reinforcement Learning has recently become a really hot area of research, due to the huge amount of breakthroughs in last couple of years. Such "explosion" started by a group of scientists from a start-up company called DeepMind (later it was acquired by Google), who decided to apply current deep learning progress to existing reinforcement learning (RL) approaches. The result paper [Playing Atari with Deep Reinforcement Learning", Mnih et al., 2013](https://arxiv.org/abs/1312.5602) recieves a lot of attention in AI community, since it is the first time, when a single algorithm, using only raw pixels observations, successfully learns how to survive in absolutely different evironments, with different rules and objectives, and in some of the games, it even outperforms human!
 
-Many improvements have been made to Deep Q-Network (DQN) since 2013. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with classic Atari 2600 games (however it can work with any OpenAI Gym environment with raw visual input).  
-Although, the main breakthrough of their paper is state-of-the-art policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post.  
+Many improvements have been made to Deep Q-Network (DQN) since 2013. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with [OpenAI's Gym](https://gym.openai.com/) classic Atari 2600 games (however it can work with any OpenAI Gym environment with raw visual input).  
+Although, the main breakthrough of their paper is state-of-the-art policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post.
+
+
 For implementation was used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
-Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/asynq-learning). All requirements are listed [here](https://github.com/dbobrenko/asynq-learning#requirements).  
+Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/asynq-learning). All requirements are listed [here](https://github.com/dbobrenko/asynq-learning#requirements).
+
+
 For impatient, you can download pretrained agent from [TODO](**TODO link to the model**). The model was trained asynchronously in 8 threads over 30 hours on GTX 980 Ti GPU, in total of 30 millions of frames (however it can be trained further).  
-After model is downloaded and unpacked, you can evaluate it by running:  
-`run_dqn.py --logdir 'PATH_TO_DOWNLOADED_FOLDER' --eval`  
+After model is downloaded and unpacked, you can evaluate it by running:
+
+
+`python run_dqn.py --logdir 'PATH_TO_DOWNLOADED_FOLDER' --eval`
+
+
 The resulting videos can be found in `eval/SpaceInvaders-v0/` folder.
 
 ![alt text][gif_trained_pong] ![alt text][gif_trained_spaceinvaders]
@@ -99,17 +107,17 @@ Just a few important things before start:
 
    Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L120)):
 
-    ```python
-    def step(env, action_index, action_repeat=4):
-        """Executes an action in OpenAI Gym environment and repeats it on the next X frames"""
-        accum_reward = 0
-        for _ in range(action_repeat):
-            s, r, terminal, info = env.step(action_index)
-            accum_reward += r
-            if terminal:
-                break
-        return s, accum_reward, terminal, info
-    ```
+```python
+def step(env, action_index, action_repeat=4):
+    """Executes an action in OpenAI Gym environment and repeats it on the next X frames"""
+    accum_reward = 0
+    for _ in range(action_repeat):
+        s, r, terminal, info = env.step(action_index)
+        accum_reward += r
+        if terminal:
+            break
+    return s, accum_reward, terminal, info
+```
 
 2. **Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.
 
@@ -127,26 +135,26 @@ DQN architecture according to Mnih et al., 2015 (dropout was skipped):
 
  
 ```python
-    action_size = 3 # depends on the environment
-    def build_model(h, w, channels, fc3_size=256):
-        state = tf.placeholder('float32', shape=(None, h, w, channels))
-        inputs = Input(shape=(h, w, channels,))
-        model = Convolution2D(nb_filter=16, nb_row=8, nb_col=8, subsample=(4,4), activation='relu', 
-                              border_mode='same', dim_ordering='tf')(inputs)
-        model = Convolution2D(nb_filter=32, nb_row=4, nb_col=4, subsample=(2,2), activation='relu',
-                              border_mode='same', dim_ordering='tf')(model)
-        model = Flatten()(model)
-        model = Dense(output_dim=fc3_size, activation='relu')(model)
-        out = Dense(output_dim=action_size, activation='linear')(model)
-        model = Model(input=inputs, output=out)
-        qvalues = model(state)
-        return model, state, qvalues
+action_size = 3 # depends on the environment
+def build_model(h, w, channels, fc3_size=256):
+    state = tf.placeholder('float32', shape=(None, h, w, channels))
+    inputs = Input(shape=(h, w, channels,))
+    model = Convolution2D(nb_filter=16, nb_row=8, nb_col=8, subsample=(4,4), activation='relu', 
+                          border_mode='same', dim_ordering='tf')(inputs)
+    model = Convolution2D(nb_filter=32, nb_row=4, nb_col=4, subsample=(2,2), activation='relu',
+                          border_mode='same', dim_ordering='tf')(model)
+    model = Flatten()(model)
+    model = Dense(output_dim=fc3_size, activation='relu')(model)
+    out = Dense(output_dim=action_size, activation='linear')(model)
+    model = Model(input=inputs, output=out)
+    qvalues = model(state)
+    return model, state, qvalues
 ```
  
 In original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer.  
-Rest agent operations:
+Rest agent implementation:
 
-```python
+{% highlight python %}
 with tf.variable_scope('network'):
     action = tf.placeholder('int32', [None], name='action')
     reward = tf.placeholder('float32', [None], name='reward')
@@ -162,7 +170,7 @@ with tf.variable_scope('target_network'):
     target_weights = target_model.trainable_weights
 with tf.variable_scope('target_update'):
     target_update = [target_weights[i].assign(weights[i]) for i in range(len(target_weights))]
-```
+{% endhighlight %}
 
 Now let's wrap all TensorFlow operations into easy-to-read functions:
 
