@@ -37,14 +37,10 @@ The resulting videos can be found in *eval/SpaceInvaders-v0/* folder.
 Since purpose of this post is to overview and gain intuition in Deep RL basics, all deep learning stuff will be discussed very briefly, instead focusing on reinforcement learning ([skip this boring theory!](#Implementation)).
 
 
-**Rewards**. Usually, all reinfocement learning problems are based on rewards. The higher reward you recieve, the better you are doing. Though, rewards are not always immediate - there might be a delay between correct action and reward in a few milliseconds, seconds or even hours (in our case timesteps). And here comes first challenge of reinforcement learning called **credit assignment problem** - how can we decide what exactly action leads to the received reward? One of the most used methods to solve this problem called **discounted future rewards**. The main idea is to discount all future rewards by the factor of $$\gamma$$:
-
-$$R_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + ... + \gamma^{n-1} r_n,$$
-
-which can be rewritten as:
-
-$$R_t = r_t + \gamma R_{t+1},$$
-
+**Rewards**. Usually, all reinfocement learning problems are based on rewards. The higher reward you recieve, the better you are doing. Though, rewards are not always immediate - there might be a delay between correct action and reward in a few milliseconds, seconds or even hours (in our case timesteps). And here comes first challenge of reinforcement learning called **credit assignment problem** - how can we decide what exactly action leads to the received reward? One of the most used methods to solve this problem called **discounted future rewards**. The main idea is to discount all future rewards by the factor of $$\gamma$$:  
+$$R_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + ... + \gamma^{n-1} r_n,$$  
+which can be rewritten as:  
+$$R_t = r_t + \gamma R_{t+1},$$  
 $$\gamma$$ usually equals to 0.9, 0.99 or somethig like that - the further reward from current time step the more it will be discounted. 
 
 1. Why does the future rewards are important? Can't we just take into account only **immediate rewards** (i.e. $$\gamma = 0$$)?
@@ -60,20 +56,16 @@ $$\gamma$$ usually equals to 0.9, 0.99 or somethig like that - the further rewar
 Classic Q-learning algorithm contains a function approximator $$Q(s_t, a_t) = \mathbb E[R_t\|s_t, a_t]$$, which predicts *maximum discounted reward if we will perform action `a` in state `s`*. In Q-learning given function approximator represented as a table (called Q-table), where rows - all possible states, columns - all available in-game actions. During learning, such table fills with *maximum discounted rewards* for each action in each state.  
 Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4e^{67970}$$ possible states in table, multiplied by the number of actions $$\approx 10^{67961}$$ GB of RAM memory (4 byte float), which is quite large I think :).  
 And that is where comes Deep Q-Network, replacing huge and hulking Q-table with relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (game screen). When rewards for all possible actions in current state recieved, it becomes really easy to play - just choose an action with the highest expected reward!  
-Q-function can be represented as a recurrent equation, also called **Bellman equation**:
-
-$$Q(s_t, a_t) = r_t + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}),$$
-
+Q-function can be represented as a recurrent equation, also called **Bellman equation**:  
+$$Q(s_t, a_t) = r_t + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}),$$  
 where $$s_t$$ - state (in our case game screen),  
 $$a_t$$ - action to execute (in our case it's one of the {no operation, left, right} actions),  
 $$r_t$$ - immediate reward from environment after performing action $$a_t$$ in state $$s_t$$,  
 $$\gamma$$ - discount factor.  
 Expression $$max_{a_{t+1}} Q(s_{t+1}, a_{t+1})$$ means "choose maximum reward value over predicted rewards per each action by Q-function for given next state".
 
-**Loss function.** Since DQN learns to predict continuous reward values for each action in the action space - it can be interpreted as a regression task. That's why we will define mean squared error loss function for our neural network:
-
-$$L = (r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t))^2,$$
-
+**Loss function.** Since DQN learns to predict continuous reward values for each action in the action space - it can be interpreted as a regression task. That's why we will define mean squared error loss function for our neural network:  
+$$L = (r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t))^2,$$  
 where $$r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1})$$ is ground-truth $$y$$,  
 $$Q(s_t, a_t)$$ is our current prediction $$\hat y$$.  
 Intuitively, current loss function optimizes neural network so it's predictions will be equal to the reward $$r_t$$ for given state $$t$$ **plus** maximum **expected** discounted reward $$R_{t+1}$$ for the next state $$t+1$$.  
@@ -95,14 +87,18 @@ In this topic I will walk through one-step version.
 
 ## Tips and Tricks
 
-**Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.
-
+**Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.  
 In DeepMind paper they solve this problem by taking last four screen images, resizing them into 84x84 and stacking together. So their model at each time step gets a remainder where the objects where 1, 2 and 3 frames ago. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame (implementation can be found [here](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L50)).  
-![alt text][image_input_si] ![alt text][image_input_pong]
-<p style="text-align: center;">
-    Figure 3: Examples of input screens (modified) of SpaceInvaders (left) and Pong (right) games.
-</p>
-
+{% include image.html
+    img="/assets/posts/async-deeprl/input_si.png"
+    title="SpaceInvaders input"
+    caption="Figure 3: Example of SpaceInvaders input screen."
+%}
+{% include image.html
+    img="/assets/posts/async-deeprl/input_pong.png"
+    title="Pong input"
+    caption="Figure 4: Example of Pong input screen."
+%}
 
 **Action repeat** is a nice feature that will help to speed-up training process. Since neighbour frames are almost identical to each other, we will repeat last action on the next 4 frames.  
 *Keep in mind, that some games have "rounds" (most Atari games do), in order to avoid repeating actions from last game in new one, and not to predict expected future rewards for current game, based on state from the next game, we should handle end of these rounds as terminal states*.  
@@ -129,7 +125,7 @@ TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrapp
 
 **Agent** is the first thing we should start from our implementation. It consists of two models - **online model** and **target model**. First one predicts, and learns to predict rewards per action for given state; second one predicts expected future rewards for the next state, used for future reward discounting. Periodically, online model updates target model by copying it's weights. Such approach was introduced in [Deep Reinforcement Learning with Double Q-learning, van Hasselt et al. (2015)](https://arxiv.org/abs/1509.06461) paper, and aims to impove DQN performance. 
 
-First, let's define network architecture (you can find the whole agent code [here](https://github.com/dbobrenko/asynq-learning/blob/master/agent.py)):
+First, let's define network architecture ([full code](https://github.com/dbobrenko/asynq-learning/blob/master/agent.py)):  
 {% highlight python %}
 
 action_size = 3 # depends on the environment settings
@@ -189,8 +185,8 @@ def train(states, actions, rewards):
     })
 ```
 
-And finally, **training loop** python pseudo-code (working code defined in [run_dqn.py](https://github.com/dbobrenko/async-deeprl/blob/master/run_dqn.py)).  
-**Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process:
+And finally, **training loop** python pseudo-code (defined in [run_dqn.py](https://github.com/dbobrenko/async-deeprl/blob/master/run_dqn.py)).  
+**Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process.
 
 ```python
 T = 0
@@ -249,20 +245,23 @@ for t in thds:
 
 **Training progress**
 
-![alt text][image_reward_plot_si] ![alt text][image_q_plot_si]
-<p style="text-align: center;">
-  Figure 4: Training process (SpaceInvaders), from right to left: average reward per episode, average predicted Q-values per episode.
-</p>
+{% include image.html
+    img="/assets/posts/async-deeprl/si36_reward.png"
+    title="Average episode rewards (SpaceInvaders)"
+    caption="Figure 5: Average reward per episode during training of SpaceInvaders."
+%}
 
-![alt text][image_filter_vis]
-<p style="text-align: center;">
-  Figure 5: Filter visualization of the model trained on SpaceInvaders.
-</p>
+{% include image.html
+    img="/assets/posts/async-deeprl/filter_vis.png"
+    title="Filter visualization of model trained on SpaceInvaders"
+    caption="Figure 6: Filter visualization of the model trained on SpaceInvaders."
+%}
 
-![alt text][image_q_values]
-<p style="text-align: center;">
-  Figure 6: Model's Q-values prediction for given input state.
-</p>
+{% include image.html
+    img="/ssets/posts/async-deeprl/q_values.png"
+    title="Q-values prediction of model trained on SpaceInvaders"
+    caption="Figure 7: Model's Q-values prediction for given input state."
+%}
 
 ## Learning more about Deep Reinforcement Learning
 
