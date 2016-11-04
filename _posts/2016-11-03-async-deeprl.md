@@ -11,17 +11,17 @@ Deep Reinforcement Learning has recently become a really hot area of research, d
 Many improvements have been made to Deep Q-Network (DQN) since 2013, few of them: Double DQN, Dueling DQN. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with classic Atari 2600 games (however it can work with any OpenAI Gym environment with raw visual input).
 Although, the main breakthrough of their paper is state-of-the-art policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post.
 For implementation was used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
-Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/asynq-learning). All requirements are listed [here](https://github.com/dbobrenko/asynq-learning#requirements).
+Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/asynq-learning). All requirements are listed [here](https://github.com/dbobrenko/asynq-learning#requirements).  
 For impatient, you can download pretrained agent from [TODO](**TODO link to the model**). The model was trained asynchronously in 8 threads over 30 hours on GTX 980 Ti GPU, in total of 30 millions of frames (however it can be trained further).
 After model is downloaded and unpacked, you can evaluate it by running:
 ```python run_dqn.py --logdir 'PATH_TO_DOWNLOADED_FOLDER' --eval```
 The resulting videos can be found in `eval/SpaceInvaders-v0/` folder.
 
-<p align="center">
+<p style="text-align: center;">
 ![alt text][gif_trained_pong]
 ![alt text][gif_trained_spaceinvaders]
-  <br><br>
-  Figure 1: An illustration of trained agents playing (from left to right): [Pong-v0 OpenAI Gym level](https://gym.openai.com/envs/Pong-v0), [SpaceInvaders-v0 OpenAI Gym level](https://gym.openai.com/envs/SpaceInvaders-v0).
+<br><br>
+Figure 1: An illustration of trained agents playing (from left to right): [Pong-v0 OpenAI Gym level](https://gym.openai.com/envs/Pong-v0), [SpaceInvaders-v0 OpenAI Gym level](https://gym.openai.com/envs/SpaceInvaders-v0).
 </p>
 
 So let's get started!
