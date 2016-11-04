@@ -19,7 +19,7 @@ The resulting videos can be found in `eval/SpaceInvaders-v0/` folder.
 
 ![alt text][gif_trained_pong] ![alt text][gif_trained_spaceinvaders]
 <p style="text-align: center;">
-Figure 1: An illustration of trained agents playing (from left to right): [Pong-v0 OpenAI Gym level](https://gym.openai.com/envs/Pong-v0), [SpaceInvaders-v0 OpenAI Gym level](https://gym.openai.com/envs/SpaceInvaders-v0).
+Figure 1: An illustration of trained agents playing (from left to right): Pong!, SpaceInvaders.
 </p>
 
 So let's get started!
@@ -95,17 +95,17 @@ Just a few important things before start:
 
    Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L120)):
 
-   ```python
-def step(env, action_index, action_repeat=4):
-    """Executes an action in OpenAI Gym environment and repeats it on the next X frames"""
-    accum_reward = 0
-    for _ in range(action_repeat):
-        s, r, terminal, info = env.step(action_index)
-        accum_reward += r
-        if terminal:
-            break
-    return s, accum_reward, terminal, info
-```
+    ```python
+    def step(env, action_index, action_repeat=4):
+        """Executes an action in OpenAI Gym environment and repeats it on the next X frames"""
+        accum_reward = 0
+        for _ in range(action_repeat):
+            s, r, terminal, info = env.step(action_index)
+            accum_reward += r
+            if terminal:
+                break
+        return s, accum_reward, terminal, info
+    ```
 
 2. **Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.
 
@@ -121,106 +121,108 @@ def step(env, action_index, action_repeat=4):
 Now, let's get back to our agent, to see the whole agent code, go to [agent.py](https://github.com/dbobrenko/asynq-learning/blob/master/agent.py).  
 DQN architecture according to Mnih et al., 2015 (dropout was skipped):
 
-```python
-action_size = 3 # according to the environment
-def build_model(h, w, channels, fc3_size=256):
-    state = tf.placeholder('float32', shape=(None, h, w, channels))
-    inputs = Input(shape=(h, w, channels,))
-    model = Convolution2D(nb_filter=16, nb_row=8, nb_col=8, subsample=(4,4), activation='relu', 
-                          border_mode='same', dim_ordering='tf')(inputs)
-    model = Convolution2D(nb_filter=32, nb_row=4, nb_col=4, subsample=(2,2), activation='relu',
-                          border_mode='same', dim_ordering='tf')(model)
-    model = Flatten()(model)
-    model = Dense(output_dim=fc3_size, activation='relu')(model)
-    out = Dense(output_dim=action_size, activation='linear')(model)
-    model = Model(input=inputs, output=out)
-    qvalues = model(state)
-    return model, state, qvalues
-```
+    :::python
+    action_size = 3 # according to the environment
+    def build_model(h, w, channels, fc3_size=256):
+        state = tf.placeholder('float32', shape=(None, h, w, channels))
+        inputs = Input(shape=(h, w, channels,))
+        model = Convolution2D(nb_filter=16, nb_row=8, nb_col=8, subsample=(4,4), activation='relu', 
+                              border_mode='same', dim_ordering='tf')(inputs)
+        model = Convolution2D(nb_filter=32, nb_row=4, nb_col=4, subsample=(2,2), activation='relu',
+                              border_mode='same', dim_ordering='tf')(model)
+        model = Flatten()(model)
+        model = Dense(output_dim=fc3_size, activation='relu')(model)
+        out = Dense(output_dim=action_size, activation='linear')(model)
+        model = Model(input=inputs, output=out)
+        qvalues = model(state)
+        return model, state, qvalues
 
 In original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer.  
-Rest agent operations:  
-```python
-with tf.variable_scope('network'):
-    action = tf.placeholder('int32', [None], name='action')
-    reward = tf.placeholder('float32', [None], name='reward')
-    model, state, q_values = build_model(h, w, channels)
-    weights = model.trainable_weights
-with tf.variable_scope('optimizer'):
-    action_onehot = tf.one_hot(action, action_size, 1.0, 0.0, name='action_onehot')
-    action_q = tf.reduce_sum(tf.mul(q_values, action_onehot), reduction_indices=1)
-    loss = tf.reduce_mean(tf.square(reward - action_q))
-    train_op = tf.train.AdamOptimizer(lr).minimize(loss, var_list=weights)
-with tf.variable_scope('target_network'):
-    target_model, target_state, target_q_values = build_model(h, w, channels)
-    target_weights = target_model.trainable_weights
-with tf.variable_scope('target_update'):
-    target_update = [target_weights[i].assign(weights[i]) for i in range(len(target_weights))]
-```
+Rest agent operations:
 
-Now let's wrap all TensorFlow operations into easy-to-read functions:  
-```python
-def update_target():
-    sess.run(target_update)
+    ```python
+    with tf.variable_scope('network'):
+        action = tf.placeholder('int32', [None], name='action')
+        reward = tf.placeholder('float32', [None], name='reward')
+        model, state, q_values = build_model(h, w, channels)
+        weights = model.trainable_weights
+    with tf.variable_scope('optimizer'):
+        action_onehot = tf.one_hot(action, action_size, 1.0, 0.0, name='action_onehot')
+        action_q = tf.reduce_sum(tf.mul(q_values, action_onehot), reduction_indices=1)
+        loss = tf.reduce_mean(tf.square(reward - action_q))
+        train_op = tf.train.AdamOptimizer(lr).minimize(loss, var_list=weights)
+    with tf.variable_scope('target_network'):
+        target_model, target_state, target_q_values = build_model(h, w, channels)
+        target_weights = target_model.trainable_weights
+    with tf.variable_scope('target_update'):
+        target_update = [target_weights[i].assign(weights[i]) for i in range(len(target_weights))]
+    ```
 
-def predict_rewards(states):
-    return sess.run(q_values, {state: states}).flatten()
+Now let's wrap all TensorFlow operations into easy-to-read functions:
 
-def predict_target(states):
-    return np.max(sess.run(target_q_values, {target_state: states}).flatten())
+    ```python
+    def update_target():
+        sess.run(target_update)
 
-def train(states, actions, rewards):
-    sess.run(train_op, feed_dict={
-        state: states,
-        action: actions,
-        reward: rewards
-    })
-```
+    def predict_rewards(states):
+        return sess.run(q_values, {state: states}).flatten()
 
-And finally, **training loop** python pseudo-code (working code defined here: [asynq.py](https://github.com/dbobrenko/asynq-learning/blob/master/asynq.py)):  
-```python
-T = 0
-def learner_thread():
-    # global shared frame step
-    global T
-    # randomly sample minimum epsilon from given distribution
-    eps_min = random.choice(4 * [0.1] + 3 * [0.01] + 3 * [0.5])
-    while T < total_frames:
-        batch_states, batch_rewards, batch_actions = [], [], []
-        while not terminal and len(batch_states) < batch_size:
-            T += 1
-            # Explore with epsilon probability:
-            if random.random() < epsilon:
-                action_index = random.randrange(action_size)
-            else: 
-                action_index = predict_rewards(screen)
-            new_state, reward, terminal = step(env, action_index, action_repeat=4)
-            # Clip reward in [-1; 1] range
-            reward = np.clip(reward, -1, 1)
-            # Apply future reward discounting
-            if not terminal:
-                reward += gamma * predict_target(new_state)
-            # Accumulate gradients
-            batch_rewards.append(reward)
-            batch_actions.append(action_index)
-            batch_states.append(state)
-            state = new_state
-        # Apply asynchronous gradient update to shared agent
-        train(np.vstack(batch_states), batch_actions, batch_rewards)
-        # Linearly anneal epsilon
-        epsilon = update_epsilon(T, epsilon_anneal_steps, epsilon_min)
-        # Logging and target network update.
-        # thread_index == 0 means to do it only in 1st (chief) thread
-        if thread_index == 0 and T % UPDATE_INTERVAL == 0: 
-            update_target()
-            # testing, logging, etc...
+    def predict_target(states):
+        return np.max(sess.run(target_q_values, {target_state: states}).flatten())
 
-# Run multiple learner threads asynchronously (in e.g. 8 threads):
-import threading
-thds = [threading.Thread(target=learner_thread) for i in range(8)]
-for t in thds:
-    t.start()
-```
+    def train(states, actions, rewards):
+        sess.run(train_op, feed_dict={
+            state: states,
+            action: actions,
+            reward: rewards
+        })
+    ```
+
+And finally, **training loop** python pseudo-code (working code defined here: [asynq.py](https://github.com/dbobrenko/asynq-learning/blob/master/asynq.py)):
+
+    ```python
+    T = 0
+    def learner_thread():
+        # global shared frame step
+        global T
+        # randomly sample minimum epsilon from given distribution
+        eps_min = random.choice(4 * [0.1] + 3 * [0.01] + 3 * [0.5])
+        while T < total_frames:
+            batch_states, batch_rewards, batch_actions = [], [], []
+            while not terminal and len(batch_states) < batch_size:
+                T += 1
+                # Explore with epsilon probability:
+                if random.random() < epsilon:
+                    action_index = random.randrange(action_size)
+                else: 
+                    action_index = predict_rewards(screen)
+                new_state, reward, terminal = step(env, action_index, action_repeat=4)
+                # Clip reward in [-1; 1] range
+                reward = np.clip(reward, -1, 1)
+                # Apply future reward discounting
+                if not terminal:
+                    reward += gamma * predict_target(new_state)
+                # Accumulate gradients
+                batch_rewards.append(reward)
+                batch_actions.append(action_index)
+                batch_states.append(state)
+                state = new_state
+            # Apply asynchronous gradient update to shared agent
+            train(np.vstack(batch_states), batch_actions, batch_rewards)
+            # Linearly anneal epsilon
+            epsilon = update_epsilon(T, epsilon_anneal_steps, epsilon_min)
+            # Logging and target network update.
+            # thread_index == 0 means to do it only in 1st (chief) thread
+            if thread_index == 0 and T % UPDATE_INTERVAL == 0: 
+                update_target()
+                # testing, logging, etc...
+
+    # Run multiple learner threads asynchronously (in e.g. 8 threads):
+    import threading
+    thds = [threading.Thread(target=learner_thread) for i in range(8)]
+    for t in thds:
+        t.start()
+    ```
 
 **Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process.  
 Benchmarks for current implementation of Asynchronous one-step Q-Learning:
