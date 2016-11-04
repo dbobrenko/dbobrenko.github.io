@@ -34,7 +34,7 @@ The resulting videos can be found in *eval/SpaceInvaders-v0/* folder.
 
 ## Basic theory
 
-Since purpose of this post is to overview and gain intuition in Deep RL basics, all deep learning stuff will be discussed very briefly, instead focusing on reinforcement learning ([Skip this boring theory!](#Implementation)).
+Since purpose of this post is to overview and gain intuition in Deep RL basics, all deep learning stuff will be discussed very briefly, instead focusing on reinforcement learning ([skip this boring theory!](#Implementation)).
 
 
 **Rewards**. Usually, all reinfocement learning problems are based on rewards. The higher reward you recieve, the better you are doing. Though, rewards are not always immediate - there might be a delay between correct action and reward in a few milliseconds, seconds or even hours (in our case timesteps). And here comes first challenge of reinforcement learning called **credit assignment problem** - how can we decide what exactly action leads to the received reward? One of the most used methods to solve this problem called **discounted future rewards**. The main idea is to discount all future rewards by the factor of $$\gamma$$:
@@ -64,18 +64,18 @@ Q-function can be represented as a recurrent equation, also called **Bellman equ
 
 $$Q(s_t, a_t) = r_t + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}),$$
 
-where $$\mathbf {s_t}$$ - state (in our case game screen),  
-$$\mathbf {a_t}$$ - action to execute (in our case it's one of the {no operation, left, right} actions),  
-$$\mathbf {r_t}$$ - immediate reward from environment after performing action $$a_t$$ in state $$s_t$$,  
-$$\mathbf {\gamma}$$ - discount factor.  
-Expression $$\mathbf {max_{a_{t+1}} Q(s_{t+1}, a_{t+1})}$$ means "choose maximum reward value over predicted rewards per each action by Q-function for given next state".
+where $$s_t$$ - state (in our case game screen),  
+$$a_t$$ - action to execute (in our case it's one of the {no operation, left, right} actions),  
+$$r_t$$ - immediate reward from environment after performing action $$a_t$$ in state $$s_t$$,  
+$$\gamma$$ - discount factor.  
+Expression $$max_{a_{t+1}} Q(s_{t+1}, a_{t+1})$$ means "choose maximum reward value over predicted rewards per each action by Q-function for given next state".
 
 **Loss function.** Since DQN learns to predict continuous reward values for each action in the action space - it can be interpreted as a regression task. That's why we will define mean squared error loss function for our neural network:
 
 $$L = (r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t))^2,$$
 
-where $$\mathbf {r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1})}$$ is ground-truth $$\mathbf y$$,  
-$$\mathbf {Q(s_t, a_t)}$$ is our current prediction $$\mathbf {\hat y}$$.  
+where $$r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1})$$ is ground-truth $$y$$,  
+$$Q(s_t, a_t)$$ is our current prediction $$\hat y$$.  
 Intuitively, current loss function optimizes neural network so it's predictions will be equal to the reward $$r_t$$ for given state $$t$$ **plus** maximum **expected** discounted reward $$R_{t+1}$$ for the next state $$t+1$$.  
 And now, if you will think about maximum discounted reward for the next state $$t+1$$, you will find that it also includes maximum discounted reward $$R_{t+2}$$ for the next state $$t+2$$ and so on up to the terminal state.
 
