@@ -130,8 +130,8 @@ TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrapp
 **Agent** is the first thing we should start from our implementation. It consists of two models - **online model** and **target model**. First one predicts, and learns to predict rewards per action for given state; second one predicts expected future rewards for the next state, used for future reward discounting. Periodically, online model updates target model by copying it's weights. Such approach was introduced in [Deep Reinforcement Learning with Double Q-learning, van Hasselt et al. (2015)](https://arxiv.org/abs/1509.06461) paper, and aims to impove DQN performance. 
 
 First, let's define network architecture (you can find the whole agent code [here](https://github.com/dbobrenko/asynq-learning/blob/master/agent.py)):
+{% highlight python %}
 
-```python
 action_size = 3 # depends on the environment settings
 def build_model(h, w, channels, fc3_size=256):
     state = tf.placeholder('float32', shape=(None, h, w, channels))
@@ -147,8 +147,8 @@ def build_model(h, w, channels, fc3_size=256):
     model = Model(input=inputs, output=out)
     qvalues = model(state)
     return model, state, qvalues
-```
-
+    
+{% endhighlight %}
 In the original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
 
 ```python
