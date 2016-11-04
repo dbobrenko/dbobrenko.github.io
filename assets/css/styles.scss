@@ -383,6 +383,16 @@ main {
   background-color: #c3bfbf;
 }
 
+/******** POST IMAGE CAPTION ******/
+.image-wrapper {
+    text-align: center;
+
+    .image-caption {
+        color: $grey-color;
+        margin-top: $spacing-unit / 3;
+    }
+}
+
 /******* MAIN FOOTER ********/
 .main-footer {
   display: -webkit-box;
