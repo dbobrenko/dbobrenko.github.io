@@ -549,7 +549,7 @@ main {
         line-height: 13px; }
       .page-content header .line {
         margin-top: 20px; } }
-.page-content a {
+.page-content a:hover {
   text-decoration: underline; }
 
 .post-content {
