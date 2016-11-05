@@ -13,6 +13,9 @@ $color-font-inverse: #dbe0e6;
 $color-link: #005BB5;
 $color-link-hovered: #39AEFF;
 
+/*background-colors*/
+$color-background-main: #fff;
+
 /*media queries*/
 $media-xl: 1200px;
 $media-l: 900px;
@@ -84,7 +87,7 @@ body {
   color: $color-font-main;
   min-width: 275px;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: $color-background-main;
 }
 
 .max-width-limited {
@@ -729,5 +732,10 @@ figcaption {
     display: flex;
     justify-content: center;
     background-color: #f2f2f2;
+
+    .video-caption {
+      @extend .image-caption;
+      background: $color-background-main;
+    }
   }
 }
