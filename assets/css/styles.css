@@ -32,7 +32,6 @@ a {
   color: #005BB5;
   transition: all 0.2s; }
   a:hover {
-    text-decoration: underline;
     transition: all 0.2s;
     color: #39AEFF; }
 
@@ -550,6 +549,8 @@ main {
         line-height: 13px; }
       .page-content header .line {
         margin-top: 20px; } }
+.page-content a {
+  text-decoration: underline; }
 
 .post-content {
   padding-top: 40px;
