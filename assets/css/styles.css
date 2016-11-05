@@ -657,7 +657,8 @@ figcaption {
   display: flex;
   flex-direction: column;
   align-items: center; }
-  .post-content .video iframe {
-    width: 50%; }
+  @media (max-width: 1000px) {
+    .post-content .video iframe {
+      width: 50%; } }
 
 /*# sourceMappingURL=styles.css.map */

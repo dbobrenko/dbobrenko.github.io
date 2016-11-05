@@ -734,8 +734,12 @@ figcaption {
     align-items: center;
     @extend .image-caption;
 
-    iframe {
-      width: 50%;
+
+
+    @media (max-width: $wrapper-width) {
+      iframe {
+        width: 50%;
+      }
     }
   }
 }
