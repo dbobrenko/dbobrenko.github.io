@@ -655,6 +655,7 @@ figcaption {
   margin: 30px 0; }
 .post-content .video {
   display: flex;
+  flex-direction: column;
   align-items: center;
   background-color: #f2f2f2; }
   .post-content .video .video-caption {
