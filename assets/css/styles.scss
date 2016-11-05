@@ -75,7 +75,6 @@ html, body {
   @media (max-width: $media-m) { font: $font-main-m; }
   @media (max-width: $media-s) { font: $font-main-s; }
   @media (max-width: $media-xs) { font: $font-main-xs; }
-  @media (max-width: $media-xxs) { font: $font-main-xxs; }
 }
 
 h1 {
@@ -636,7 +635,7 @@ main {
 
   .image-caption {
     color: #222;
-    font: $font-main-s;
+    font-size: 0.8rem;
     font-style: italic;
     text-align: center;
   }
