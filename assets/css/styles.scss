@@ -100,26 +100,27 @@ body {
 
 // TABLE RULES
 table,th,td {
-  border: none
+  border: none;
 }
 
 table {
   width: 100%;
-  display: table
+  display: table;
+  margin: 40px 0;
 }
 
 
 table>tbody>tr {
-  transition: background-color .25s ease
+  transition: background-color .25s ease;
 }
 
 table>tbody>tr:hover {
-  background-color: #f2f2f2
+  background-color: #f2f2f2;
 }
 
 
 thead {
-  border-bottom: 1px solid #d0d0d0
+  border-bottom: 1px solid #d0d0d0;
 }
 
 td,th {
@@ -127,7 +128,7 @@ td,th {
   display: table-cell;
   text-align: left;
   vertical-align: middle;
-  border-radius: 2px
+  border-radius: 2px;
 }
 
 /******** HEADER ********/
@@ -694,6 +695,7 @@ figcaption {
   h2 {
     text-align: left;
     padding: 10px 0 10px 0;
+    margin-top: 60px;
   }
 
   p {
