@@ -10,15 +10,12 @@ $media-xxs: 275px;
 $wrapper-width: 1000px;
 
 /*font vars*/
-$font-main: 300 22px/32px 'Open Sans', Arial, serif;
-@media (max-width: $media-s) { $font-main: 300 20px/30px 'Open Sans', Arial, serif }
-@media (max-width: $media-xs) { $font-main: 300 16px/24px 'Open Sans', Arial, serif }
-@media (max-width: $media-xxs) { $font-main: 300 14px/20px 'Open Sans', Arial, serif }
+$font-main-m: 300 22px/32px 'Open Sans', Arial, serif;
+$font-main-s: 300 20px/30px 'Open Sans', Arial, serif;
+$font-main-xs: 300 16px/24px 'Open Sans', Arial, serif;
+$font-main-xxs: 300 14px/20px 'Open Sans', Arial, serif;
 
 $font-family--base: 'Open Sans', Arial, serif;
-$font-size--l: 26px;
-$font-size--m: 17px;
-$font-size--s: 15px;
 
 /*color vars*/
 $color-font-main: #000;
@@ -91,11 +88,16 @@ body {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  font: $font-main;
+  font: $font-main-m;
   color: $color-font-main;
   min-width: 275px;
   min-height: 100vh;
   background-color: $color-background-main;
+
+  @media (max-width: $media-m) { font: $font-main-m; }
+  @media (max-width: $media-s) { font: $font-main-s; }
+  @media (max-width: $media-xs) { font: $font-main-xs; }
+  @media (max-width: $media-xxs) { font: $font-main-xxs; }
 }
 
 .max-width-limited {
@@ -711,7 +713,7 @@ main {
 
   .image-caption {
     color: #222;
-    font-size: $font-size--s;
+    font: $font-main-s;
     font-style: italic;
     text-align: center;
   }

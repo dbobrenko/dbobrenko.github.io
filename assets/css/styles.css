@@ -60,6 +60,18 @@ body {
   min-width: 275px;
   min-height: 100vh;
   background-color: #fff; }
+  @media (max-width: 800px) {
+    body {
+      font: 300 22px/32px "Open Sans", Arial, serif; } }
+  @media (max-width: 700px) {
+    body {
+      font: 300 20px/30px "Open Sans", Arial, serif; } }
+  @media (max-width: 400px) {
+    body {
+      font: 300 16px/24px "Open Sans", Arial, serif; } }
+  @media (max-width: 275px) {
+    body {
+      font: 300 14px/20px "Open Sans", Arial, serif; } }
 
 .max-width-limited {
   max-width: 1000px;
@@ -637,7 +649,7 @@ main {
   text-align: center; }
 .post-content .image-caption, .post-content .video {
   color: #222;
-  font-size: 15px;
+  font: 300 20px/30px "Open Sans", Arial, serif;
   font-style: italic;
   text-align: center; }
 .post-content img {
