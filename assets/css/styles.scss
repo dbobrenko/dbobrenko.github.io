@@ -63,12 +63,12 @@ a {
     color: $color-link-hovered;
   }
 }
-
+/*
 figure {
   padding: 0;
   margin: 0;
 }
-
+*/
 /********** BASE RULES *********/
 body {
   position: relative;
@@ -459,6 +459,14 @@ main {
 }
 
 /******* IMAGE CAPTION ********/
+figure > img {
+    display: block;
+}
+
+figcaption {
+    font-size: $small-font-size;
+}
+
 .image-wrapper {
     text-align: center;
 }

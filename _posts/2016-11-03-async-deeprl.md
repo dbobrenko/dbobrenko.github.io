@@ -42,7 +42,9 @@ Since purpose of this post is to overview and gain intuition in Deep RL basics, 
 $$R_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + ... + \gamma^{n-1} r_n,$$
 
 which can be rewritten as:  
-$$R_t = r_t + \gamma R_{t+1},$$  
+
+$$R_t = r_t + \gamma R_{t+1},$$
+
 $$\gamma$$ usually equals to 0.9, 0.99 or somethig like that - the further reward from current time step the more it will be discounted. 
 
 1. Why does the future rewards are important? Can't we just take into account only **immediate rewards** (i.e. $$\gamma = 0$$)?
@@ -249,8 +251,6 @@ for t in thds:
 
 ## Results
 
-**Training progress**
-
 {% include image.html
     img="/assets/posts/async-deeprl/si36_reward.png"
     title="Average episode rewards (SpaceInvaders)"
@@ -278,8 +278,7 @@ And of course, [David Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/b
 For **deep learning** I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/).  
 After, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial one ;) ).
 
-## Some awesome RL papers
-
+**Some awesome RL papers:**
 1. A3C: [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016](https://arxiv.org/abs/1602.01783).
 2. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](http://arxiv.org/pdf/1312.5602v1.pdf).
 3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
