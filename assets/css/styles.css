@@ -659,6 +659,6 @@ figcaption {
   align-items: center; }
   @media (max-width: 1000px) {
     .post-content .video iframe {
-      width: 50%; } }
+      width: 100%; } }
 
 /*# sourceMappingURL=styles.css.map */
