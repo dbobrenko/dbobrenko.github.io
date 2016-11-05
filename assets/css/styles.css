@@ -31,7 +31,7 @@ a {
   color: #005BB5;
   transition: all 0.2s; }
   a:hover {
-    text-decoration: none;
+    text-decoration: underline;
     transition: all 0.2s;
     color: #39AEFF; }
 
@@ -292,7 +292,7 @@ main {
   color: inherit;
   transition: color 0.2s; }
   .post__title a:hover {
-    color: #0d6b6a; }
+    color: #39AEFF; }
 
 .post:last-of-type .post__border {
   display: none; }
@@ -457,7 +457,7 @@ figcaption {
   text-align: center; }
 
 .image-caption {
-  color: #808080;
+  color: #e0e0e0;
   font-size: 15px;
   font-style: italic; }
 

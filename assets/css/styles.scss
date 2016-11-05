@@ -57,7 +57,7 @@ a {
   transition: all 0.2s;
 
   &:hover {
-    text-decoration: none;
+    text-decoration: underline;
     transition: all 0.2s;
     color: $color-link-hovered;
   }
@@ -367,7 +367,7 @@ main {
   transition: color 0.2s;
 
   &:hover {
-    color: #0d6b6a;
+    color: #39AEFF;
   }
 }
 
@@ -468,7 +468,7 @@ figcaption {
 }
 
 .image-caption {
-    color: #808080;
+    color: #e0e0e0;
     font-size: $font-size--s;
     font-style: italic;
 }
