@@ -18,13 +18,11 @@ Code used in this topic can be found at my [github repository](https://github.co
 
 
 **Pretrained model** on SpaceInvaders can be downloaded from [TODO](**TODO link to the model**). The model was trained asynchronously in 8 threads over 30 hours on GTX 980 Ti GPU, in total of 30 millions of frames (however it can be trained further).  
-After model is downloaded and unpacked, you can evaluate it by running:
+After model is downloaded and unpacked, you can evaluate it by running (by default result saved to eval/SpaceInvaders-v0/):
 
-
-*python run_dqn.py --logdir 'PATH_TO_DOWNLOADED_FOLDER' --eval*
-
-
-The resulting videos can be found in *eval/SpaceInvaders-v0/* folder.
+```bash
+python run_dqn.py --logdir 'path_to_model_folder' --eval
+```
 
 {% include image.html
     img="/assets/posts/async-deeprl/si.gif"
