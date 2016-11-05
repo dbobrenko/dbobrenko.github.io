@@ -734,8 +734,13 @@ figcaption {
     align-items: center;
     background-color: #f2f2f2;
 
+    iframe {
+      width: 50%;
+    }
+
     .video-caption {
       @extend .image-caption;
+      width: 100%;
       background: $color-background-main;
     }
   }

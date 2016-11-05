@@ -658,7 +658,10 @@ figcaption {
   flex-direction: column;
   align-items: center;
   background-color: #f2f2f2; }
+  .post-content .video iframe {
+    width: 50%; }
   .post-content .video .video-caption {
+    width: 100%;
     background: #fff; }
 
 /*# sourceMappingURL=styles.css.map */
