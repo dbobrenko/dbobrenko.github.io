@@ -72,6 +72,10 @@ figure {
 }
 */
 /********** BASE RULES *********/
+html, body {
+  overflow-x: hidden;
+}
+
 body {
   position: relative;
   display: -webkit-box;
