@@ -28,7 +28,7 @@ button {
 a {
   text-decoration: none;
   outline: none;
-  color: #009AFF;
+  color: #005BB5;
   transition: all 0.2s; }
   a:hover {
     text-decoration: none;
@@ -305,19 +305,11 @@ main {
   max-width: 75vw;
   background-color: #c3bfbf; }
 
-/*
-%vertical-rhythm {
-    margin-bottom: 15;
-}
-*/
 /**
  * Syntax highlighting styles
  */
 .highlight {
-  background: #fff;
-    /*
-    @extend %vertical-rhythm;
-	*/ }
+  background: #fff; }
   .highlighter-rouge .highlight {
     background: #eef; }
   .highlight .c {

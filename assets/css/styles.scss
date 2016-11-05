@@ -10,7 +10,7 @@ $font-size--s: 15px;
 /*color vars*/
 $color-font-main: #111;
 $color-font-inverse: #dbe0e6;
-$color-link: #009AFF;
+$color-link: #005BB5;
 $color-link-hovered: #39AEFF;
 
 /*media queries*/
@@ -383,19 +383,12 @@ main {
   max-width: 75vw;
   background-color: #c3bfbf;
 }
-/*
-%vertical-rhythm {
-    margin-bottom: 15;
-}
-*/
+
 /**
  * Syntax highlighting styles
  */
 .highlight {
     background: #fff;
-    /*
-    @extend %vertical-rhythm;
-	*/
     .highlighter-rouge & {
       background: #eef;
     }
