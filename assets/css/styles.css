@@ -652,5 +652,9 @@ figcaption {
   max-width: 100%; }
 .post-content .MathJax_Display {
   margin: 30px 0; }
+.post-content .video {
+  display: flex;
+  justify-content: center;
+  background-color: #f2f2f2; }
 
 /*# sourceMappingURL=styles.css.map */

@@ -724,4 +724,10 @@ figcaption {
   .MathJax_Display {
     margin: 30px 0;
   }
+
+  .video {
+    display: flex;
+    justify-content: center;
+    background-color: #f2f2f2;
+  }
 }
