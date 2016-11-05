@@ -73,9 +73,7 @@ $$Q(s_t, a_t)$$ is our current prediction $$\hat y$$.
 Intuitively, current loss function optimizes neural network so it's predictions will be equal to the reward $$r_t$$ for given state $$t$$ **plus** maximum **expected** discounted reward $$R_{t+1}$$ for the next state $$t+1$$.  
 And now, if you will think about maximum discounted reward for the next state $$t+1$$, you will find that it also includes maximum discounted reward $$R_{t+2}$$ for the next state $$t+2$$ and so on up to the terminal state.
 
-
 **Ok. But how it can work?** That seems to be insane, especially for those, who are familiar with supervised learning. Of course, at early iterations, an approximation of $$Q(s_{t+1}, a_{t+1})$$ will return an absolute garbage, however, over a long time of training, prediction of future expected rewards will become more and more accurate and finally it will converge ([a proof of Q-learning convergence](http://users.isr.ist.utl.pt/~mtjspaan/readingGroup/ProofQlearning.pdf)).
-
 
 **Asynchronous one-step and n-step Q-Learning**. The main change they made to DQN since 2013 - is asynchronous training in multiple game environments at the same time. Such approach significantly speeds-up convergence, and allows us to train it on a single multicore CPU instead of GPU (compared to vanilla DQN and other deep RL methods).  
 They have presented two versions of asynchronous deep Q-Learning: *one-step* and *n-step* Q-learning. The main difference, is that n-step explicitly computes n-step returns by predicting expected discounted future reward only after `n` steps, backpropagating predicted value on earlier actions, instead of predicting it after each step.  
@@ -151,15 +149,18 @@ with tf.variable_scope('network'):
     model, state, q_values = build_model(h, w, channels)
     weights = model.trainable_weights
 with tf.variable_scope('optimizer'):
-    action_onehot = tf.one_hot(action, action_size, 1.0, 0.0, name='action_onehot')
-    action_q = tf.reduce_sum(tf.mul(q_values, action_onehot), reduction_indices=1)
+    action_onehot = tf.one_hot(action, action_size,
+                               1.0, 0.0, name='action_onehot')
+    action_q = tf.reduce_sum(tf.mul(q_values, action_onehot),
+                             reduction_indices=1)
     loss = tf.reduce_mean(tf.square(reward - action_q))
-    opt = tf.train.AdamOptimizer(lr, epsilon=0.1).minimize(self.loss, var_list=self.weights)
+    opt = tf.train.AdamOptimizer(lr, epsilon=0.1)
+    train_op = opt.minimize(loss, var_list=weights)
 with tf.variable_scope('target_network'):
-    target_m, self.target_state, self.target_q_values = self._build_model(h, w, channels)
+    target_m, target_state, target_q_values = build_model(h, w, channels)
     target_w = target_m.trainable_weights
 with tf.variable_scope('target_update'):
-    self.target_update = [target_w[i].assign(self.weights[i]) for i in range(len(target_w))]
+    target_update = [target_w[i].assign(weights[i]) for i in range(len(target_w))]
 ```
 
 Now let's wrap all TensorFlow operations into easy-to-read functions:
