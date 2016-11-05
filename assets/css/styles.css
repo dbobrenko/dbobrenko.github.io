@@ -1,8 +1,8 @@
+/*media queries*/
 /*size vars*/
 /*font vars*/
 /*color vars*/
 /*background-colors*/
-/*media queries*/
 /*********** RESET BROWSER STYLE **********/
 * {
   box-sizing: border-box; }
@@ -55,10 +55,8 @@ body {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  font-family: "PT Sans", Helvetica, Arial, sans-serif;
-  font-size: 18px;
-  line-height: 30px;
-  color: #111;
+  font: 300 22px/32px "Open Sans", Arial, serif;
+  color: #000;
   min-width: 275px;
   min-height: 100vh;
   background-color: #fff; }
@@ -310,7 +308,7 @@ main {
 
 .post__title a {
   display: block;
-  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-family: "Open Sans", Arial, serif;
   font-size: 34px;
   line-height: 36px;
   font-weight: 700;
@@ -474,13 +472,6 @@ main {
   .highlight .il {
     color: #099; }
 
-/******* IMAGE CAPTION ********/
-figure > img {
-  display: block; }
-
-figcaption {
-  font-size: 15px; }
-
 /******* MAIN FOOTER ********/
 .main-footer {
   display: -webkit-box;
@@ -533,7 +524,7 @@ figcaption {
   max-width: 100%;
   padding: 10px;
   margin-bottom: 20px;
-  color: #111;
+  color: #000;
   outline: none;
   border: none;
   background-color: #eaeaea; }
@@ -655,7 +646,8 @@ figcaption {
   border: 2px solid #eeeeee;
   max-width: 100%; }
 .post-content .MathJax_Display {
-  margin: 30px 0; }
+  margin: 30px 0;
+  overflow: auto; }
 .post-content .video {
   display: flex;
   flex-direction: column;
