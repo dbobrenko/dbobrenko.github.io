@@ -618,7 +618,8 @@ figcaption {
 .post-content .image-caption {
   color: #222;
   font-size: 15px;
-  font-style: italic; }
+  font-style: italic;
+  text-align: center; }
 .post-content img {
   margin: 3px;
   padding: 3px;
