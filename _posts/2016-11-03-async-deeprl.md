@@ -2,7 +2,7 @@
 layout: post 
 comments: true
 title: Asynchronous Deep Reinforcement Learning from pixels
-excerpt: "I'll implement and explain an idea of Asynchronous one-step Q-Learning. As an example will be trained an agent to play in classic Atari SpaceInvaders and Pong games, using just a raw pixels!" 
+excerpt: "I'll implement and explain an idea of Asynchronous one-step Q-Learning. As an example will be trained an agent to play in classic Atari games, using just a raw pixels!" 
 date: 2016-11-03 22:00:00 
 mathjax: true
 ---
@@ -14,17 +14,15 @@ Although, the main breakthrough of their paper is state-of-the-art policy-based 
 
 
 **For implementation** was used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
-Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/asynq-learning). All requirements are listed [here](https://github.com/dbobrenko/asynq-learning#requirements).
+Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
 
 
 **Pretrained model** on SpaceInvaders can be downloaded from [TODO](**TODO link to the model**). The model was trained asynchronously in 8 threads over 30 hours on GTX 980 Ti GPU, in total of 30 millions of frames (however it can be trained further).  
-After model is downloaded and unpacked, you can evaluate it by running:
+After model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
 
-
-*python run_dqn.py --logdir 'PATH_TO_DOWNLOADED_FOLDER' --eval*
-
-
-The resulting videos can be found in *eval/SpaceInvaders-v0/* folder.
+```bash
+python run_dqn.py --logdir 'path_to_model_folder' --eval
+```
 
 {% include image.html
     img="/assets/posts/async-deeprl/si.gif"
@@ -45,7 +43,7 @@ which can be rewritten as:
 
 $$R_t = r_t + \gamma R_{t+1},$$
 
-$$\gamma$$ usually equals to 0.9, 0.99 or somethig like that - the further reward from current time step the more it will be discounted. 
+where $$\gamma$$ usually equals to 0.9 or 0.99 - the further reward from current time step the more it will be discounted. 
 
 1. Why does the future rewards are important? Can't we just take into account only **immediate rewards** (i.e. $$\gamma = 0$$)?
 
@@ -84,9 +82,8 @@ And now, if you will think about maximum discounted reward for the next state $$
 
 
 **Asynchronous one-step and n-step Q-Learning**. The main change they made to DQN since 2013 - is asynchronous training in multiple game environments at the same time. Such approach significantly speeds-up convergence, and allows us to train it on a single multicore CPU instead of GPU (compared to vanilla DQN and other deep RL methods).  
-They have presented two versions of asynchronous deep Q-Learning: *one-step* and *n-step* Q-learning. The main difference, is that n-step explicitly computes n-step returns by predicting expected discounted future reward only after `n` steps, backpropagating that on earlier actions, instead of predicting it after each step (detailed nstep method can be found in "4. Asynchronous RL Framework").  
+They have presented two versions of asynchronous deep Q-Learning: *one-step* and *n-step* Q-learning. The main difference, is that n-step explicitly computes n-step returns by predicting expected discounted future reward only after `n` steps, backpropagating predicted value on earlier actions, instead of predicting it after each step.  
 In this topic I will walk through one-step version.
-
 {% include image.html
     img="/assets/posts/async-deeprl/onestep_alg.jpg"
     title="Asynchronous Q-Learning algorithm pseudo-code"
@@ -94,19 +91,6 @@ In this topic I will walk through one-step version.
 %}
 
 ## Tips and Tricks
-
-**Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.  
-In DeepMind paper they solve this problem by taking last four screen images, resizing them into 84x84 and stacking together. So their model at each time step gets a remainder where the objects where 1, 2 and 3 frames ago. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame (implementation can be found [here](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L50)).  
-{% include image.html
-    img="/assets/posts/async-deeprl/input_si.png"
-    title="SpaceInvaders input"
-    caption="Figure 3: Example of SpaceInvaders input screen."
-%}
-{% include image.html
-    img="/assets/posts/async-deeprl/input_pong.png"
-    title="Pong input"
-    caption="Figure 4: Example of Pong input screen."
-%}
 
 **Action repeat** is a nice feature that will help to speed-up training process. Since neighbour frames are almost identical to each other, we will repeat last action on the next 4 frames.  
 *Keep in mind, that some games have "rounds" (most Atari games do), in order to avoid repeating actions from last game in new one, and not to predict expected future rewards for current game, based on state from the next game, we should handle end of these rounds as terminal states*.  
@@ -123,9 +107,20 @@ for _ in range(action_repeat):
         break
 return s, accum_reward, terminal, info
 ```
+**Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.  
+In DeepMind paper they solve this problem by taking last four screen images, resizing them into 84x84 and stacking together. So their model at each time step gets a remainder where the objects where 1, 2 and 3 frames ago. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame (implementation can be found [here](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L50)).  
+{% include image.html
+    img="/assets/posts/async-deeprl/input_si.png"
+    title="SpaceInvaders input"
+    caption="Figure 3: Example of SpaceInvaders input screen."
+%}
+{% include image.html
+    img="/assets/posts/async-deeprl/input_pong.png"
+    title="Pong input"
+    caption="Figure 4: Example of Pong input screen."
+%}
 
 **Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between "following already explored strategy" or "discovering new ones, maybe better that current". In current paper, they sampled the minimum exploration rate epsilon from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital epsilon anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
-
 
 ## TensorFlow implementation<a name="Implementation"></a>
 
@@ -133,9 +128,9 @@ TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrapp
 
 **Agent** is the first thing we should start from our implementation. It consists of two models - **online model** and **target model**. First one predicts, and learns to predict rewards per action for given state; second one predicts expected future rewards for the next state, used for future reward discounting. Periodically, online model updates target model by copying it's weights. Such approach was introduced in [Deep Reinforcement Learning with Double Q-learning, van Hasselt et al. (2015)](https://arxiv.org/abs/1509.06461) paper, and aims to impove DQN performance. 
 
-First, let's define network architecture ([full code](https://github.com/dbobrenko/asynq-learning/blob/master/agent.py)):  
-{% highlight python %}
+First, let's define network architecture ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/agent.py)):  
 
+```python
 action_size = 3 # depends on the environment settings
 def build_model(h, w, channels, fc3_size=256):
     state = tf.placeholder('float32', shape=(None, h, w, channels))
@@ -151,8 +146,8 @@ def build_model(h, w, channels, fc3_size=256):
     model = Model(input=inputs, output=out)
     qvalues = model(state)
     return model, state, qvalues
-    
-{% endhighlight %}
+```
+
 In the original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
 
 ```python
@@ -275,8 +270,7 @@ I would suggest you to start from [Andrej Karpathy's post](http://karpathy.githu
 To get more intuition about classic Deep Q-Network you may read through [this post](https://www.nervanasys.com/demystifying-deep-reinforcement-learning), and watch [10 David Silver's lectures about RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html).  
 And of course, [David Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf).
 
-For **deep learning** I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/).  
-After, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial one ;) ).
+To gain some intuition in **deep learning**, I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/). Later, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial one ;) ).
 
 **Some awesome RL papers:**
 1. A3C: [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016](https://arxiv.org/abs/1602.01783).
@@ -286,13 +280,3 @@ After, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfort
 
 And, that's it. Any feedback will be highly appreciated!  
 **Thank you for reading, hope you enjoy it!**
-
-[gif_trained_spaceinvaders]: /assets/posts/async-deeprl/si.gif "Trained agent plays SpaceInvaders Atari 2600 game"
-[gif_trained_pong]: /assets/posts/async-deeprl/pong.gif "Trained agent plays Pong! Atari 2600 game"
-[image_input_si]: /assets/posts/async-deeprl/input_si.png "SpaceInvaders Input"
-[image_input_pong]: /assets/posts/async-deeprl/input_pong.png "Pong! Input"
-[image_onestep_alg]: /assets/posts/async-deeprl/onestep_alg.jpg "Asynchronous Q-Learning algorithm pseudo-code"
-[image_reward_plot_si]: /assets/posts/async-deeprl/si36_reward.png "Average episode rewards (SpaceInvaders)"
-[image_q_plot_si]: /assets/posts/async-deeprl/si36_q.png "Average Q-value prediction progress (SpaceInvaders)"
-[image_filter_vis]: /assets/posts/async-deeprl/filter_vis.png "Filter visualization of model trained on SpaceInvaders"
-[image_q_values]: /ssets/posts/async-deeprl/q_values.png "Q-values prediction of model trained on SpaceInvaders"

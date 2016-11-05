@@ -2,16 +2,15 @@
 $wrapper-width: 1000px;
 
 /*font vars*/
-$font-family--base: 'PT Sans', Helvetica, Arial, sans-serif; /*'Play', 'Arial', sans-serif;*/
-$font-family--secondary: 'Kanit', 'Arial', sans-serif;
+$font-family--base: 'PT Sans', Helvetica, Arial, sans-serif;
 $font-size--l: 26px;
 $font-size--m: 18px;
 $font-size--s: 15px;
 
 /*color vars*/
-$color-font-main: #333;
+$color-font-main: #111;
 $color-font-inverse: #dbe0e6;
-$color-link: #0d00b8;
+$color-link: #005BB5;
 $color-link-hovered: #39AEFF;
 
 /*media queries*/
@@ -58,7 +57,7 @@ a {
   transition: all 0.2s;
 
   &:hover {
-    text-decoration: none;
+    text-decoration: underline;
     transition: all 0.2s;
     color: $color-link-hovered;
   }
@@ -85,7 +84,7 @@ body {
   color: $color-font-main;
   min-width: 275px;
   min-height: 100vh;
-  background-color: #fffffe;
+  background-color: #ffffff;
 }
 
 .max-width-limited {
@@ -267,6 +266,7 @@ main {
   flex-grow: 1;
 }
 
+/*
 // Jumbotron
 .jumbotron {
   width: 100%;
@@ -341,9 +341,10 @@ main {
     }
   }
 }
-
+*/
 /*** BLOG FEED ***/
 .post {
+  font-family: "Source Sans Pro";
   padding: 50px 0 0 0;
 }
 
@@ -366,7 +367,7 @@ main {
   transition: color 0.2s;
 
   &:hover {
-    color: #0d6b6a;
+    color: #39AEFF;
   }
 }
 
@@ -383,16 +384,11 @@ main {
   background-color: #c3bfbf;
 }
 
-%vertical-rhythm {
-    margin-bottom: 15;
-}
 /**
  * Syntax highlighting styles
  */
 .highlight {
     background: #fff;
-    @extend %vertical-rhythm;
-
     .highlighter-rouge & {
       background: #eef;
     }
@@ -472,8 +468,8 @@ figcaption {
 }
 
 .image-caption {
-    color: #808080;
-    font-size: 0.1em;
+    color: #e0e0e0;
+    font-size: $font-size--s;
     font-style: italic;
 }
 

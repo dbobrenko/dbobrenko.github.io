@@ -1,6 +1,5 @@
 /*size vars*/
 /*font vars*/
-/*'Play', 'Arial', sans-serif;*/
 /*color vars*/
 /*media queries*/
 /*********** RESET BROWSER STYLE **********/
@@ -29,10 +28,10 @@ button {
 a {
   text-decoration: none;
   outline: none;
-  color: #0d00b8;
+  color: #005BB5;
   transition: all 0.2s; }
   a:hover {
-    text-decoration: none;
+    text-decoration: underline;
     transition: all 0.2s;
     color: #39AEFF; }
 
@@ -55,10 +54,10 @@ body {
   font-family: "PT Sans", Helvetica, Arial, sans-serif;
   font-size: 18px;
   line-height: 22px;
-  color: #333;
+  color: #111;
   min-width: 275px;
   min-height: 100vh;
-  background-color: #fffffe; }
+  background-color: #ffffff; }
 
 .max-width-limited {
   max-width: 1000px;
@@ -195,57 +194,85 @@ main {
   -ms-flex-positive: 1;
   flex-grow: 1; }
 
+/*
+// Jumbotron
 .jumbotron {
   width: 100%;
-  min-width: 275px;
-  background: url("../../assets/images/starsky.jpg") 0 0; }
-  .jumbotron h1 {
+  min-width: $media-xxs;
+  background: url("../../assets/images/starsky.jpg") 0 0;
+
+  h1 {
     padding: 100px 20px 60px 20px;
     font-size: 66px;
     line-height: 68px;
     font-weight: bold;
-    color: #dbe0e6;
-    text-transform: uppercase; }
-  .jumbotron .intro {
+    color: $color-font-inverse;
+    text-transform: uppercase;
+  }
+
+  .intro {
     padding: 0 20px 50px 20px;
     font-size: 18px;
-    line-height: 20px; }
-    .jumbotron .intro p {
-      color: #dbe0e6; }
-  @media (max-width: 1200px) {
-    .jumbotron h1 {
+    line-height: 20px;
+
+    p {
+      color: $color-font-inverse;
+    }
+  }
+
+  @media (max-width: $media-xl) {
+    h1 {
       font-size: 58px;
-      line-height: 60px; }
-    .jumbotron .intro {
+      line-height: 60px;
+    }
+
+    .intro {
       font-size: 16px;
-      line-height: 18px; } }
-  @media (max-width: 900px) {
-    .jumbotron h1 {
+      line-height: 18px;
+    }
+  }
+
+  @media (max-width: $media-l) {
+    h1 {
       font-size: 54px;
       line-height: 56px;
       padding-top: 60px;
-      padding-bottom: 50px; } }
-  @media (max-width: 700px) {
-    .jumbotron h1 {
+      padding-bottom: 50px;
+    }
+  }
+
+  @media (max-width: $media-s) {
+    h1 {
       padding: 60px 10px 50px 10px;
       font-size: 48px;
-      line-height: 50px; }
-    .jumbotron .intro {
+      line-height: 50px;
+    }
+
+    .intro {
       padding: 0 10px 50px 10px;
       font-size: 14px;
-      line-height: 16px; } }
-  @media (max-width: 400px) {
-    .jumbotron h1 {
+      line-height: 16px;
+    }
+  }
+
+  @media (max-width: $media-xs) {
+    h1 {
       font-size: 40px;
       line-height: 42px;
       padding-top: 60px;
-      padding-bottom: 50px; }
-    .jumbotron .intro {
-      font-size: 14px;
-      line-height: 16px; } }
+      padding-bottom: 50px;
+    }
 
+    .intro {
+      font-size: 14px;
+      line-height: 16px;
+    }
+  }
+}
+*/
 /*** BLOG FEED ***/
 .post {
+  font-family: "Source Sans Pro";
   padding: 50px 0 0 0; }
 
 .post__date {
@@ -265,7 +292,7 @@ main {
   color: inherit;
   transition: color 0.2s; }
   .post__title a:hover {
-    color: #0d6b6a; }
+    color: #39AEFF; }
 
 .post:last-of-type .post__border {
   display: none; }
@@ -277,9 +304,6 @@ main {
   height: 1px;
   max-width: 75vw;
   background-color: #c3bfbf; }
-
-.highlight {
-  margin-bottom: 15; }
 
 /**
  * Syntax highlighting styles
@@ -433,8 +457,8 @@ figcaption {
   text-align: center; }
 
 .image-caption {
-  color: #808080;
-  font-size: 0.1em;
+  color: #e0e0e0;
+  font-size: 15px;
   font-style: italic; }
 
 img {
@@ -495,7 +519,7 @@ img {
   max-width: 100%;
   padding: 10px;
   margin-bottom: 20px;
-  color: #333;
+  color: #111;
   outline: none;
   border: none;
   background-color: #eaeaea; }
