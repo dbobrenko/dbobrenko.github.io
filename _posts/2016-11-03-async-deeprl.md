@@ -30,6 +30,9 @@ python run_dqn.py --logdir 'path_to_model_folder' --eval
     caption="Figure 1: An illustration of trained agents playing (from left to right): Pong!, SpaceInvaders."
 %}
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/TnUYcTuZJpM?autoplay=1&loop=1" frameborder="0" allowfullscreen></iframe>
+Figure 454: Test sample
+
 ## Basic theory
 
 Since purpose of this post is to overview and gain intuition in Deep RL basics, all deep learning stuff will be discussed very briefly, instead focusing on reinforcement learning ([skip this boring theory!](#Implementation)).
