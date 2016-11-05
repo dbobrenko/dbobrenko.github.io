@@ -37,8 +37,10 @@ The resulting videos can be found in *eval/SpaceInvaders-v0/* folder.
 Since purpose of this post is to overview and gain intuition in Deep RL basics, all deep learning stuff will be discussed very briefly, instead focusing on reinforcement learning ([skip this boring theory!](#Implementation)).
 
 
-**Rewards**. Usually, all reinfocement learning problems are based on rewards. The higher reward you recieve, the better you are doing. Though, rewards are not always immediate - there might be a delay between correct action and reward in a few milliseconds, seconds or even hours (in our case timesteps). And here comes first challenge of reinforcement learning called **credit assignment problem** - how can we decide what exactly action leads to the received reward? One of the most used methods to solve this problem called **discounted future rewards**. The main idea is to discount all future rewards by the factor of $$\gamma$$:  
-$$R_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + ... + \gamma^{n-1} r_n,$$  
+**Rewards**. Usually, all reinfocement learning problems are based on rewards. The higher reward you recieve, the better you are doing. Though, rewards are not always immediate - there might be a delay between correct action and reward in a few milliseconds, seconds or even hours (in our case timesteps). And here comes first challenge of reinforcement learning called **credit assignment problem** - how can we decide what exactly action leads to the received reward? One of the most used methods to solve this problem called **discounted future rewards**. The main idea is to discount all future rewards by the factor of $$\gamma$$:
+
+$$R_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + ... + \gamma^{n-1} r_n,$$
+
 which can be rewritten as:  
 $$R_t = r_t + \gamma R_{t+1},$$  
 $$\gamma$$ usually equals to 0.9, 0.99 or somethig like that - the further reward from current time step the more it will be discounted. 
@@ -56,16 +58,20 @@ $$\gamma$$ usually equals to 0.9, 0.99 or somethig like that - the further rewar
 Classic Q-learning algorithm contains a function approximator $$Q(s_t, a_t) = \mathbb E[R_t\|s_t, a_t]$$, which predicts *maximum discounted reward if we will perform action `a` in state `s`*. In Q-learning given function approximator represented as a table (called Q-table), where rows - all possible states, columns - all available in-game actions. During learning, such table fills with *maximum discounted rewards* for each action in each state.  
 Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4e^{67970}$$ possible states in table, multiplied by the number of actions $$\approx 10^{67961}$$ GB of RAM memory (4 byte float), which is quite large I think :).  
 And that is where comes Deep Q-Network, replacing huge and hulking Q-table with relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (game screen). When rewards for all possible actions in current state recieved, it becomes really easy to play - just choose an action with the highest expected reward!  
-Q-function can be represented as a recurrent equation, also called **Bellman equation**:  
-$$Q(s_t, a_t) = r_t + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}),$$  
+Q-function can be represented as a recurrent equation, also called **Bellman equation**:
+
+$$Q(s_t, a_t) = r_t + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}),$$
+
 where $$s_t$$ - state (in our case game screen),  
 $$a_t$$ - action to execute (in our case it's one of the {no operation, left, right} actions),  
 $$r_t$$ - immediate reward from environment after performing action $$a_t$$ in state $$s_t$$,  
 $$\gamma$$ - discount factor.  
 Expression $$max_{a_{t+1}} Q(s_{t+1}, a_{t+1})$$ means "choose maximum reward value over predicted rewards per each action by Q-function for given next state".
 
-**Loss function.** Since DQN learns to predict continuous reward values for each action in the action space - it can be interpreted as a regression task. That's why we will define mean squared error loss function for our neural network:  
-$$L = (r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t))^2,$$  
+**Loss function.** Since DQN learns to predict continuous reward values for each action in the action space - it can be interpreted as a regression task. That's why we will define mean squared error loss function for our neural network:
+
+$$L = (r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t))^2,$$
+
 where $$r + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1})$$ is ground-truth $$y$$,  
 $$Q(s_t, a_t)$$ is our current prediction $$\hat y$$.  
 Intuitively, current loss function optimizes neural network so it's predictions will be equal to the reward $$r_t$$ for given state $$t$$ **plus** maximum **expected** discounted reward $$R_{t+1}$$ for the next state $$t+1$$.  

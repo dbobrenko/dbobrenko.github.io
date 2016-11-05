@@ -2,7 +2,7 @@
 $wrapper-width: 1000px;
 
 /*font vars*/
-$font-family--base: 'PT Sans', Helvetica, Arial, sans-serif;
+$font-family--base: 'PT Sans', Helvetica, Arial, sans-serif; /*'Play', 'Arial', sans-serif;*/
 $font-family--secondary: 'Kanit', 'Arial', sans-serif;
 $font-size--l: 26px;
 $font-size--m: 18px;
@@ -383,7 +383,9 @@ main {
   background-color: #c3bfbf;
 }
 
-
+%vertical-rhythm {
+    margin-bottom: 15;
+}
 /**
  * Syntax highlighting styles
  */
