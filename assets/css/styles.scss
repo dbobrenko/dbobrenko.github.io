@@ -463,23 +463,6 @@ figcaption {
     font-size: $font-size--s;
 }
 
-.image-wrapper {
-    text-align: center;
-}
-
-.image-caption {
-    color: #e0e0e0;
-    font-size: $font-size--s;
-    font-style: italic;
-}
-
-img {
-    margin: 3px;
-    padding: 3px;
-    border: 2px solid #eeeeee;
-    max-width: 100%;
-}
-
 /******* MAIN FOOTER ********/
 .main-footer {
   display: -webkit-box;
@@ -683,5 +666,22 @@ img {
   p {
     margin-bottom: 20px;
     text-align: justify;
+  }
+
+  .image-wrapper {
+    text-align: center;
+  }
+
+  .image-caption {
+    color: #222;
+    font-size: $font-size--s;
+    font-style: italic;
+  }
+
+  img {
+    margin: 3px;
+    padding: 3px;
+    border: 2px solid #eeeeee;
+    max-width: 100%;
   }
 }
