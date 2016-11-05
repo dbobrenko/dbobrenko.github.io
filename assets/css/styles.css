@@ -641,7 +641,7 @@ figcaption {
   text-align: justify; }
 .post-content .image-wrapper {
   text-align: center; }
-.post-content .image-caption, .post-content .video .video-caption {
+.post-content .image-caption, .post-content .video {
   color: #222;
   font-size: 15px;
   font-style: italic;
@@ -656,12 +656,8 @@ figcaption {
 .post-content .video {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background-color: #f2f2f2; }
+  align-items: center; }
   .post-content .video iframe {
     width: 50%; }
-  .post-content .video .video-caption {
-    width: 100%;
-    background: #fff; }
 
 /*# sourceMappingURL=styles.css.map */

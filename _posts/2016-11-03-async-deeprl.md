@@ -32,7 +32,7 @@ python run_dqn.py --logdir 'path_to_model_folder' --eval
 
 <div class="video">
 <iframe width="560" height="315" src="https://www.youtube.com/embed/TnUYcTuZJpM?autoplay=1&loop=1" frameborder="0" allowfullscreen></iframe>
-<div class="video-caption">Figure 454: Test sample</div>
+Figure 454: Test sample
 </div>
 
 ## Basic theory
