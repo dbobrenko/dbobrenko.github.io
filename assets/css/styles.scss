@@ -12,8 +12,7 @@ $wrapper-width: 1000px;
 /*font vars*/
 $font-main-m: 300 22px/32px 'Open Sans', Arial, serif;
 $font-main-s: 300 20px/30px 'Open Sans', Arial, serif;
-$font-main-xs: 300 16px/24px 'Open Sans', Arial, serif;
-$font-main-xxs: 300 14px/20px 'Open Sans', Arial, serif;
+$font-main-xs: 300 18px/24px 'Open Sans', Arial, serif;
 
 $font-family--base: 'Open Sans', Arial, serif;
 
@@ -68,15 +67,30 @@ a {
     color: $color-link-hovered;
   }
 }
-/*
-figure {
-  padding: 0;
-  margin: 0;
-}
-*/
+
 /********** BASE RULES *********/
 html, body {
   overflow-x: hidden;
+  font: $font-main-m;
+  @media (max-width: $media-m) { font: $font-main-m; }
+  @media (max-width: $media-s) { font: $font-main-s; }
+  @media (max-width: $media-xs) { font: $font-main-xs; }
+  @media (max-width: $media-xxs) { font: $font-main-xxs; }
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 2.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+  line-height: 1.5rem;
 }
 
 body {
@@ -88,16 +102,10 @@ body {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  font: $font-main-m;
   color: $color-font-main;
   min-width: 275px;
   min-height: 100vh;
   background-color: $color-background-main;
-
-  @media (max-width: $media-m) { font: $font-main-m; }
-  @media (max-width: $media-s) { font: $font-main-s; }
-  @media (max-width: $media-xs) { font: $font-main-xs; }
-  @media (max-width: $media-xxs) { font: $font-main-xxs; }
 }
 
 .max-width-limited {
@@ -313,82 +321,7 @@ main {
   flex-grow: 1;
 }
 
-/*
-// Jumbotron
-.jumbotron {
-  width: 100%;
-  min-width: $media-xxs;
-  background: url("../../assets/images/starsky.jpg") 0 0;
 
-  h1 {
-    padding: 100px 20px 60px 20px;
-    font-size: 66px;
-    line-height: 68px;
-    font-weight: bold;
-    color: $color-font-inverse;
-    text-transform: uppercase;
-  }
-
-  .intro {
-    padding: 0 20px 50px 20px;
-    font-size: 18px;
-    line-height: 20px;
-
-    p {
-      color: $color-font-inverse;
-    }
-  }
-
-  @media (max-width: $media-xl) {
-    h1 {
-      font-size: 58px;
-      line-height: 60px;
-    }
-
-    .intro {
-      font-size: 16px;
-      line-height: 18px;
-    }
-  }
-
-  @media (max-width: $media-l) {
-    h1 {
-      font-size: 54px;
-      line-height: 56px;
-      padding-top: 60px;
-      padding-bottom: 50px;
-    }
-  }
-
-  @media (max-width: $media-s) {
-    h1 {
-      padding: 60px 10px 50px 10px;
-      font-size: 48px;
-      line-height: 50px;
-    }
-
-    .intro {
-      padding: 0 10px 50px 10px;
-      font-size: 14px;
-      line-height: 16px;
-    }
-  }
-
-  @media (max-width: $media-xs) {
-    h1 {
-      font-size: 40px;
-      line-height: 42px;
-      padding-top: 60px;
-      padding-bottom: 50px;
-    }
-
-    .intro {
-      font-size: 14px;
-      line-height: 16px;
-    }
-  }
-}
-*/
 /*** BLOG FEED ***/
 .post {
   font-family: "Source Sans Pro";
@@ -650,11 +583,6 @@ main {
       text-align: center;
     }
 
-    .title {
-      font-size: 42px;
-      line-height: 44px;
-    }
-
     .line {
       display: block;
       width: 75%;
@@ -671,11 +599,6 @@ main {
         margin-bottom: 10px;
         font-size: 11px;
         line-height: 13px;
-      }
-
-      .title {
-        font-size: 36px;
-        line-height: 38px;
       }
 
       .line {
