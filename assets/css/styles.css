@@ -36,10 +36,12 @@ a {
     transition: all 0.2s;
     color: #39AEFF; }
 
+/*
 figure {
   padding: 0;
-  margin: 0; }
-
+  margin: 0;
+}
+*/
 /********** BASE RULES *********/
 body {
   position: relative;
@@ -421,6 +423,12 @@ main {
     color: #099; }
 
 /******* IMAGE CAPTION ********/
+figure > img {
+  display: block; }
+
+figcaption {
+  font-size: 15px; }
+
 .image-wrapper {
   text-align: center; }
 
