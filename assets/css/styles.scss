@@ -97,6 +97,39 @@ body {
   }
 }
 
+
+// TABLE RULES
+table,th,td {
+  border: none
+}
+
+table {
+  width: 100%;
+  display: table
+}
+
+
+table>tbody>tr {
+  transition: background-color .25s ease
+}
+
+table>tbody>tr:hover {
+  background-color: #f2f2f2
+}
+
+
+thead {
+  border-bottom: 1px solid #d0d0d0
+}
+
+td,th {
+  padding: 15px 5px;
+  display: table-cell;
+  text-align: left;
+  vertical-align: middle;
+  border-radius: 2px
+}
+
 /******** HEADER ********/
 .main-header {
   position: relative;
