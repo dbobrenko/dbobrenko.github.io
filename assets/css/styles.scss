@@ -15,6 +15,7 @@ $font-main-s: 300 20px/30px 'Open Sans', Arial, serif;
 $font-main-xs: 300 18px/24px 'Open Sans', Arial, serif;
 
 $font-family--base: 'Open Sans', Arial, serif;
+$font-family-highlight: 'Open Sans', Arial, serif;
 
 /*color vars*/
 $color-font-main: #000;
@@ -349,6 +350,11 @@ main {
   }
 }
 
+.post__preview {
+  color: #333;
+
+}
+
 .post:last-of-type .post__border {
   display: none;
 }
@@ -366,11 +372,12 @@ main {
  * Syntax highlighting styles
  */
 .highlight {
+    font-family: $font-family-highlight;
+    font-size: 0.8rem;
     background: #fff;
     .highlighter-rouge & {
       background: #eef;
     }
-
     .c     { color: #998; font-style: italic } // Comment
     .err   { color: #a61717; background-color: #e3d2d2 } // Error
     .k     { font-weight: bold } // Keyword

@@ -258,6 +258,9 @@ main {
   .post__title a:hover {
     color: #39AEFF; }
 
+.post__preview {
+  color: #333; }
+
 .post:last-of-type .post__border {
   display: none; }
 
@@ -273,6 +276,8 @@ main {
  * Syntax highlighting styles
  */
 .highlight {
+  font-family: "Open Sans", Arial, serif;
+  font-size: 0.8rem;
   background: #fff; }
   .highlighter-rouge .highlight {
     background: #eef; }

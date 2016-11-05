@@ -12,31 +12,22 @@ mathjax: true
 **Many improvements** have been made to Deep Q-Network (DQN) since 2013. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with [OpenAI's Gym](https://gym.openai.com/) classic Atari 2600 games (however it can work with any OpenAI Gym environment with raw visual input).  
 Although, the main breakthrough of their paper is state-of-the-art policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post.
 
-
 **For implementation** was used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
 Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
 
 
 **Pretrained model** on SpaceInvaders can be downloaded from [TODO](**TODO link to the model**). The model was trained asynchronously in 8 threads over 30 hours on GTX 980 Ti GPU, in total of 30 millions of frames (however it can be trained further).  
 After model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
-
 ```bash
 python run_dqn.py --logdir 'path_to_model_folder' --eval
 ```
-
 {% include image.html
     img="/assets/posts/async-deeprl/si.gif"
     title="Trained agent plays SpaceInvaders Atari 2600 game"
-    caption="Figure 1: An illustration of trained agents playing (from left to right): Pong!, SpaceInvaders."
+    caption="Figure 1: An illustration of trained agent playing [OpenAI Gym SpaceInvaders](https://gym.openai.com/envs/SpaceInvaders-v0)."
 %}
 
-<div class="video">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/TnUYcTuZJpM?&loop=1" frameborder="0" allowfullscreen></iframe>
-Figure 454: Test sample
-</div>
-
 ## Basic theory
-
 Since purpose of this post is to overview and gain intuition in Deep RL basics, all deep learning stuff will be discussed very briefly, instead focusing on reinforcement learning ([skip this boring theory!](#Implementation)).
 
 
@@ -59,7 +50,7 @@ where $$\gamma$$ usually equals to 0.9 or 0.99 - the further reward from current
 
    *The more we will go into the future, the more uncertainty we will get. Imagine you are playing poker or any card game - there will be no guarantee that actions that lead you to the states in past will lead you to the same states in future, and further you will go, the lesser probability to repeat the same sequence of states will be.*
 
-**Deep Q Network (DQN)** is probably one of the most famous deep reinforcement learning algorithms nowadays, which uses a core idea of **Q-learning** ([1998, Sutton et al.](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf)).  
+**Deep Q Network (DQN)** is probably one of the most famous deep reinforcement learning algorithms nowadays, which uses a core idea of **Q-learning** ([1998, Sutton et al](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf)).  
 Classic Q-learning algorithm contains a function approximator $$Q(s_t, a_t) = \mathbb E[R_t\|s_t, a_t]$$, which predicts *maximum discounted reward if we will perform action `a` in state `s`*. In Q-learning given function approximator represented as a table (called Q-table), where rows - all possible states, columns - all available in-game actions. During learning, such table fills with *maximum discounted rewards* for each action in each state.  
 Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4e^{67970}$$ possible states in table, multiplied by the number of actions $$\approx 10^{67961}$$ GB of RAM memory (4 byte float), which is quite large I think :).  
 And that is where comes Deep Q-Network, replacing huge and hulking Q-table with relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (game screen). When rewards for all possible actions in current state recieved, it becomes really easy to play - just choose an action with the highest expected reward!  
@@ -96,7 +87,6 @@ In this topic I will walk through one-step version.
 %}
 
 ## Tips and Tricks
-
 **Action repeat** is a nice feature that will help to speed-up training process. Since neighbour frames are almost identical to each other, we will repeat last action on the next 4 frames.  
 *Keep in mind, that some games have "rounds" (most Atari games do), in order to avoid repeating actions from last game in new one, and not to predict expected future rewards for current game, based on state from the next game, we should handle end of these rounds as terminal states*.  
 Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L120)):
@@ -113,11 +103,11 @@ for _ in range(action_repeat):
 return s, accum_reward, terminal, info
 ```
 **Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.  
-In DeepMind paper they solve this problem by taking last four screen images, resizing them into 84x84 and stacking together. So their model at each time step gets a remainder where the objects where 1, 2 and 3 frames ago. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame (implementation can be found [here](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L50)).  
+In DeepMind paper they solve this problem by taking last four screen images, converting them to grayscale, resizing to 84x84 and stacking together. As shown on figure 3 and 4, having such history about previous frames gives us an information about objects velocity. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame ([implementation](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L50)).  
 {% include image.html
     img="/assets/posts/async-deeprl/input_si.png"
     title="SpaceInvaders input"
-    caption="Figure 3: Example of SpaceInvaders input screen."
+    caption="Figure 3: Example of SpaceInvaders input screen"
 %}
 {% include image.html
     img="/assets/posts/async-deeprl/input_pong.png"
@@ -125,16 +115,14 @@ In DeepMind paper they solve this problem by taking last four screen images, res
     caption="Figure 4: Example of Pong input screen."
 %}
 
-**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between "following already explored strategy" or "discovering new ones, maybe better that current". In current paper, they sampled the minimum exploration rate epsilon from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital epsilon anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
+**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or exploring new ones, maybe better that current". In current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
 
 ## TensorFlow implementation<a name="Implementation"></a>
-
 TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrappers to reduce code, few of them: [keras](https://keras.io/) (used in this post), [slim](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/slim), [tflearn](http://tflearn.org/getting_started/).
 
 **Agent** is the first thing we should start from our implementation. It consists of two models - **online model** and **target model**. First one predicts, and learns to predict rewards per action for given state; second one predicts expected future rewards for the next state, used for future reward discounting. Periodically, online model updates target model by copying it's weights. Such approach was introduced in [Deep Reinforcement Learning with Double Q-learning, van Hasselt et al. (2015)](https://arxiv.org/abs/1509.06461) paper, and aims to impove DQN performance. 
 
-First, let's define network architecture ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/agent.py)):  
-
+First, let's define network architecture ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/agent.py)):
 ```python
 action_size = 3 # depends on the environment settings
 def build_model(h, w, channels, fc3_size=256):
@@ -154,7 +142,6 @@ def build_model(h, w, channels, fc3_size=256):
 ```
 
 In the original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
-
 ```python
 with tf.variable_scope('network'):
     action = tf.placeholder('int32', [None], name='action')
@@ -165,12 +152,12 @@ with tf.variable_scope('optimizer'):
     action_onehot = tf.one_hot(action, action_size, 1.0, 0.0, name='action_onehot')
     action_q = tf.reduce_sum(tf.mul(q_values, action_onehot), reduction_indices=1)
     loss = tf.reduce_mean(tf.square(reward - action_q))
-    train_op = tf.train.AdamOptimizer(lr).minimize(loss, var_list=weights)
+    opt = tf.train.AdamOptimizer(lr, epsilon=0.1).minimize(self.loss, var_list=self.weights)
 with tf.variable_scope('target_network'):
-    target_model, target_state, target_q_values = build_model(h, w, channels)
-    target_weights = target_model.trainable_weights
+    target_m, self.target_state, self.target_q_values = self._build_model(h, w, channels)
+    target_w = target_m.trainable_weights
 with tf.variable_scope('target_update'):
-    target_update = [target_weights[i].assign(weights[i]) for i in range(len(target_weights))]
+    self.target_update = [target_w[i].assign(self.weights[i]) for i in range(len(target_w))]
 ```
 
 Now let's wrap all TensorFlow operations into easy-to-read functions:
@@ -242,15 +229,14 @@ for t in thds:
 
 **Benchmarks** for current implementation of Asynchronous one-step Q-Learning:
 
-
-|   **Device**                                            |   **Input shape**   |   **FPS**   |
-|:--------------------------------------------------------|:-------------------:|:-----------:|
-|   GPU **GTX 980 Ti**                                    |   84x84x4           |   **540**   |
-|   CPU **Core i7-3770 @ 3.40GHz (4 cores, 8 threads)**   |   84x84x4           |   **315**   |
+<div style="text-align: right">Table 1. Asynchronous One-Step Q-Learning benchmarks.</div>
+|   **Device**                                        |   **Input shape**     |   **FPS**   |
+|:----------------------------------------------------|:---------------------:|:-----------:|
+| GPU **GTX 980 Ti**                                  | $$84\times84\times4$$ |   **540**   |
+| CPU **Core i7-3770 @ 3.40GHz (4 cores, 8 threads)** | $$84\times84\times4$$ |   **315**   |
 
 
 ## Results
-
 {% include image.html
     img="/assets/posts/async-deeprl/si36_reward.png"
     title="Average episode rewards (SpaceInvaders)"
