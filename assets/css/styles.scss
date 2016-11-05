@@ -659,7 +659,8 @@ main {
 
   .MathJax_Display {
     margin: 30px 0;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   .video {

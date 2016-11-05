@@ -586,7 +586,8 @@ main {
   max-width: 100%; }
 .post-content .MathJax_Display {
   margin: 30px 0;
-  overflow: auto; }
+  overflow-x: auto;
+  overflow-y: hidden; }
 .post-content .video {
   display: flex;
   flex-direction: column;

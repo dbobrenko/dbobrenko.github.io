@@ -15,9 +15,9 @@ Although, the main breakthrough of their paper is state-of-the-art policy-based 
 **For implementation** was used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
 Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
 
-
 **Pretrained model** on SpaceInvaders can be downloaded from [TODO](**TODO link to the model**). The model was trained asynchronously in 8 threads over 30 hours on GTX 980 Ti GPU, in total of 30 millions of frames (however it can be trained further).  
 After model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
+
 ```bash
 python run_dqn.py --logdir 'path_to_model_folder' --eval
 ```
@@ -123,6 +123,7 @@ TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrapp
 **Agent** is the first thing we should start from our implementation. It consists of two models - **online model** and **target model**. First one predicts, and learns to predict rewards per action for given state; second one predicts expected future rewards for the next state, used for future reward discounting. Periodically, online model updates target model by copying it's weights. Such approach was introduced in [Deep Reinforcement Learning with Double Q-learning, van Hasselt et al. (2015)](https://arxiv.org/abs/1509.06461) paper, and aims to impove DQN performance. 
 
 First, let's define network architecture ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/agent.py)):
+
 ```python
 action_size = 3 # depends on the environment settings
 def build_model(h, w, channels, fc3_size=256):
@@ -142,6 +143,7 @@ def build_model(h, w, channels, fc3_size=256):
 ```
 
 In the original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
+
 ```python
 with tf.variable_scope('network'):
     action = tf.placeholder('int32', [None], name='action')
@@ -230,6 +232,7 @@ for t in thds:
 **Benchmarks** for current implementation of Asynchronous one-step Q-Learning:
 
 <div style="text-align: right">Table 1. Asynchronous One-Step Q-Learning benchmarks.</div>
+
 |   **Device**                                        |   **Input shape**     |   **FPS**   |
 |:----------------------------------------------------|:---------------------:|:-----------:|
 | GPU **GTX 980 Ti**                                  | $$84\times84\times4$$ |   **540**   |
