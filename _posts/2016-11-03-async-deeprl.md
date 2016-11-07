@@ -125,13 +125,13 @@ action_size = 3 # depends on the environment settings
 def build_model(h, w, channels, fc3_size=256):
     state = tf.placeholder('float32', shape=(None, h, w, channels))
     inputs = Input(shape=(h, w, channels,))
-    model = Convolution2D(nb_filter=16, nb_row=8, nb_col=8, subsample=(4,4), activation='relu', 
-                          border_mode='same', dim_ordering='tf')(inputs)
-    model = Convolution2D(nb_filter=32, nb_row=4, nb_col=4, subsample=(2,2), activation='relu',
-                          border_mode='same', dim_ordering='tf')(model)
+    model = Convolution2D(nb_filter=16, nb_row=8, nb_col=8, subsample=(4,4),
+                          activation='relu', border_mode='same')(inputs)
+    model = Convolution2D(nb_filter=32, nb_row=4, nb_col=4, subsample=(2,2),
+                          activation='relu', border_mode='same')(model)
     model = Flatten()(model)
     model = Dense(output_dim=fc3_size, activation='relu')(model)
-    # dropout was skipped
+    # skip dropout
     out = Dense(output_dim=action_size, activation='linear')(model)
     model = Model(input=inputs, output=out)
     qvalues = model(state)
@@ -225,7 +225,7 @@ def learner_thread():
 ```
 
 
-**Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process (benchmarks are shown in Table 1). So thread launching looks like this:
+**Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process (benchmarks are shown in Table 1). So thread creation looks like:
 
 ```python
 # Run multiple learner threads asynchronously (in e.g. 8 threads):
@@ -238,14 +238,6 @@ for t in thds:
 
 ## Results
 
-<div style="text-align: right"><b>Table 1.</b> Current implementation of Asynchronous one-step Q-Learning algorithm benchmarks.</div>
-
-|   **Device**                                        |   **Input shape**     |   **FPS**   |
-|:----------------------------------------------------|:---------------------:|:-----------:|
-| GPU **GTX 980 Ti**                                  | $$84\times84\times4$$ |   **540**   |
-| CPU **Core i7-3770 @ 3.40GHz** (4 cores, 8 threads) | $$84\times84\times4$$ |   **315**   |
-
-
 
 As an example, on a figure 6 shown of an input state and output rewards per action of our agent. As you can see, it definitely predicts to stay where it is, or atleast go left, but not right (almost 12 for holding position vs. 10 for going right expected reward values), the reason of low reward for right action is obvious - there is a bullet on hand of the agent, so if it will go there - it will probably die.
 {% include image.html
@@ -255,7 +247,7 @@ As an example, on a figure 6 shown of an input state and output rewards per acti
 %}
 
 <div class="video">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&loop=1" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&amp;loop=1&amp;" frameborder="0" allowfullscreen></iframe>
 Figure 6: Agent, trained over 26 millions of frames, plays Atari Breakout.
 </div>
 
@@ -265,6 +257,14 @@ After model is downloaded and unpacked, you can evaluate it by running (by defau
 ```bash
 python run_dqn.py --logdir 'model/folder/path' --eval
 ```
+
+
+<div style="text-align: right"><b>Table 1.</b> Current implementation of Asynchronous one-step Q-Learning algorithm benchmarks.</div>
+
+|   **Device**                                        |   **Input shape**     |   **FPS**   |
+|:----------------------------------------------------|:---------------------:|:-----------:|
+| GPU **GTX 980 Ti**                                  | $$84\times84\times4$$ |   **540**   |
+| CPU **Core i7-3770 @ 3.40GHz** (4 cores, 8 threads) | $$84\times84\times4$$ |   **315**   |
 
 ## Where can I learn more about Deep Reinforcement Learning?
 
@@ -281,5 +281,5 @@ To gain some intuition in **deep learning**, I would recommend [Nielsen's online
 3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
 4. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al, 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
 
-And, we are done. Any feedback will be highly appreciated.  
+And that's it! Any feedback will be highly appreciated.  
 **Thank you for reading, hope you enjoy it!**
