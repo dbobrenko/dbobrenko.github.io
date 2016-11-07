@@ -259,7 +259,8 @@ python run_dqn.py --logdir 'model/folder/path' --eval
 ```
 
 
-<div style="text-align: right"><b>Table 1.</b> Current implementation of Asynchronous one-step Q-Learning algorithm benchmarks.</div>
+
+<div style="text-align: right"><b>Table 1.</b> Benchmark current Asynchronous one-step Q-Learning algorithm implementation.</div>
 
 |   **Device**                                        |   **Input shape**     |   **FPS**   |
 |:----------------------------------------------------|:---------------------:|:-----------:|
@@ -277,8 +278,8 @@ To gain some intuition in **deep learning**, I would recommend [Nielsen's online
 **Some awesome RL papers:**
 
 1. A3C: [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016](https://arxiv.org/abs/1602.01783).
-2. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](http://arxiv.org/pdf/1312.5602v1.pdf).
-3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
+2. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](https://arxiv.org/abs/1312.5602).
+3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](https://arxiv.org/abs/1509.02971).
 4. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al, 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
 
 And that's it! Any feedback will be highly appreciated.  
