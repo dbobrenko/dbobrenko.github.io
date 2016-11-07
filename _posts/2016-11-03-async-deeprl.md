@@ -252,7 +252,7 @@ As an example, on a figure 6 shown of an input state and output rewards per acti
 %}
 
 <div class="video">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&loop=1" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&loop=1&rel=0&showinfo=0&color=white&iv_load_policy=3&playlist=YtKdFcfdq9Y" frameborder="0" allowfullscreen></iframe>
 Figure 6: Agent, trained over 26 millions of frames, plays Atari Breakout.
 </div>
 
