@@ -16,9 +16,9 @@ Although, the main breakthrough of their paper is state-of-the-art policy-based 
 Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
 
 {% include image.html
-    img="/assets/posts/async-deeprl/si.gif"
+    img="/assets/posts/async-deeprl/si_sample.gif"
     title="Trained agent plays SpaceInvaders Atari 2600 game"
-    caption="Figure 1: Example of agent playing <a href="https://gym.openai.com/envs/SpaceInvaders-v0">OpenAI Gym SpaceInvaders</a>."
+    caption="Figure 1: Example of agent playing OpenAI Gym SpaceInvaders."
 %}
 
 ## Basic theory
@@ -77,7 +77,7 @@ In this topic I will walk through one-step version.
 {% include image.html
     img="/assets/posts/async-deeprl/onestep_alg.jpg"
     title="Asynchronous Q-Learning algorithm pseudo-code"
-    caption="Figure 2: Asynchronous Q-Learning algorithm pseudo-code (Mnih et al,. 2016)."
+    caption="Figure 2: Asynchronous Q-Learning algorithm pseudo-code (Mnih et al, 2016)."
 %}
 
 ## Tips and Tricks
@@ -250,7 +250,7 @@ for t in thds:
 As an example, on a figure 6 shown of an input state and output rewards per action of our agent. As you can see, it definitely predicts to stay where it is, or atleast go left, but not right (almost 12 for holding position vs. 10 for going right expected reward values), the reason of low reward for right action is obvious - there is a bullet on hand of the agent, so if it will go there - it will probably die.
 {% include image.html
     img="/assets/posts/async-deeprl/state_rewards28.png"
-    title="Q-values prediction of model trained on SpaceInvaders"
+    title="Q-values prediction of agent trained on SpaceInvaders"
     caption="Figure 5: From left to right: Model's Q-values prediction (rewards for action: left, no action, right), given input state (with stacked previous frames)."
 %}
 
