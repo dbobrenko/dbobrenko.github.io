@@ -15,16 +15,10 @@ Although, the main breakthrough of their paper is state-of-the-art policy-based 
 **For implementation** was used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
 Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
 
-**Pretrained model** on SpaceInvaders can be downloaded from [TODO](**TODO link to the model**). The model was trained asynchronously in 8 threads over 30 hours on GTX 980 Ti GPU, in total of 30 millions of frames (however it can be trained further).  
-After model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
-
-```bash
-python run_dqn.py --logdir 'path_to_model_folder' --eval
-```
 {% include image.html
     img="/assets/posts/async-deeprl/si.gif"
     title="Trained agent plays SpaceInvaders Atari 2600 game"
-    caption="Figure 1: An illustration of trained agent playing [OpenAI Gym SpaceInvaders](https://gym.openai.com/envs/SpaceInvaders-v0)."
+    caption="Figure 1: Example of agent playing <a href="https://gym.openai.com/envs/SpaceInvaders-v0">OpenAI Gym SpaceInvaders</a>."
 %}
 
 ## Basic theory
@@ -39,7 +33,9 @@ which can be rewritten as:
 
 $$R_t = r_t + \gamma R_{t+1},$$
 
-where $$\gamma$$ usually equals to 0.9 or 0.99 - the further reward from current time step the more it will be discounted. 
+where $$\gamma$$ usually equals to 0.9 or 0.99 - the further reward from current time step the more it will be discounted.
+
+You may ask:
 
 1. Why does the future rewards are important? Can't we just take into account only **immediate rewards** (i.e. $$\gamma = 0$$)?
 
@@ -52,7 +48,7 @@ where $$\gamma$$ usually equals to 0.9 or 0.99 - the further reward from current
 
 **Deep Q Network (DQN)** is probably one of the most famous deep reinforcement learning algorithms nowadays, which uses a core idea of **Q-learning** ([1998, Sutton et al](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf)).  
 Classic Q-learning algorithm contains a function approximator $$Q(s_t, a_t) = \mathbb E[R_t\|s_t, a_t]$$, which predicts *maximum discounted reward if we will perform action `a` in state `s`*. In Q-learning given function approximator represented as a table (called Q-table), where rows - all possible states, columns - all available in-game actions. During learning, such table fills with *maximum discounted rewards* for each action in each state.  
-Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4e^{67970}$$ possible states in table, multiplied by the number of actions $$\approx 10^{67961}$$ GB of RAM memory (4 byte float), which is quite large I think :).  
+Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4\times10^{67970}$$ possible states in table, multiplied by the number of actions, which is $$\approx 10^{67961}$$ GB of RAM memory (4 byte float).  
 And that is where comes Deep Q-Network, replacing huge and hulking Q-table with relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (game screen). When rewards for all possible actions in current state recieved, it becomes really easy to play - just choose an action with the highest expected reward!  
 Q-function can be represented as a recurrent equation, also called **Bellman equation**:
 
@@ -100,12 +96,14 @@ for _ in range(action_repeat):
         break
 return s, accum_reward, terminal, info
 ```
+
+
 **Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.  
 In DeepMind paper they solve this problem by taking last four screen images, converting them to grayscale, resizing to 84x84 and stacking together. As shown on figure 3 and 4, having such history about previous frames gives us an information about objects velocity. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame ([implementation](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L50)).  
 {% include image.html
     img="/assets/posts/async-deeprl/input_si.png"
     title="SpaceInvaders input"
-    caption="Figure 3: Example of SpaceInvaders input screen"
+    caption="Figure 3: Example of SpaceInvaders input screen."
 %}
 {% include image.html
     img="/assets/posts/async-deeprl/input_pong.png"
@@ -140,6 +138,7 @@ def build_model(h, w, channels, fc3_size=256):
     return model, state, qvalues
 ```
 
+
 In the original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
 
 ```python
@@ -163,6 +162,7 @@ with tf.variable_scope('target_update'):
     target_update = [target_w[i].assign(weights[i]) for i in range(len(target_w))]
 ```
 
+
 Now let's wrap all TensorFlow operations into easy-to-read functions:
 
 ```python
@@ -183,8 +183,8 @@ def train(states, actions, rewards):
     })
 ```
 
-And finally, **training loop** python pseudo-code (defined in [run_dqn.py](https://github.com/dbobrenko/async-deeprl/blob/master/run_dqn.py)).  
-**Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process.
+
+And finally, **training loop** python pseudo-code (defined in [run_dqn.py](https://github.com/dbobrenko/async-deeprl/blob/master/run_dqn.py)).
 
 ```python
 T = 0
@@ -222,7 +222,12 @@ def learner_thread():
         if thread_index == 0 and T % UPDATE_INTERVAL == 0: 
             update_target()
             # testing, logging, etc...
+```
 
+
+**Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process (benchmarks are shown in Table 1). So thread launching looks like this:
+
+```python
 # Run multiple learner threads asynchronously (in e.g. 8 threads):
 import threading
 thds = [threading.Thread(target=learner_thread) for i in range(8)]
@@ -230,48 +235,51 @@ for t in thds:
     t.start()
 ```
 
-**Benchmarks** for current implementation of Asynchronous one-step Q-Learning:
 
-<div style="text-align: right">Table 1. Asynchronous One-Step Q-Learning benchmarks.</div>
+## Results
+
+<div style="text-align: right"><b>Table 1.</b> Current implementation of Asynchronous one-step Q-Learning algorithm benchmarks.</div>
 
 |   **Device**                                        |   **Input shape**     |   **FPS**   |
 |:----------------------------------------------------|:---------------------:|:-----------:|
 | GPU **GTX 980 Ti**                                  | $$84\times84\times4$$ |   **540**   |
-| CPU **Core i7-3770 @ 3.40GHz (4 cores, 8 threads)** | $$84\times84\times4$$ |   **315**   |
+| CPU **Core i7-3770 @ 3.40GHz** (4 cores, 8 threads) | $$84\times84\times4$$ |   **315**   |
 
 
-## Results
+
+As an example, on a figure 6 shown of an input state and output rewards per action of our agent. As you can see, it definitely predicts to stay where it is, or atleast go left, but not right (almost 12 for holding position vs. 10 for going right expected reward values), the reason of low reward for right action is obvious - there is a bullet on hand of the agent, so if it will go there - it will probably die.
 {% include image.html
-    img="/assets/posts/async-deeprl/si36_reward.png"
-    title="Average episode rewards (SpaceInvaders)"
-    caption="Figure 5: Average reward per episode during training of SpaceInvaders."
-%}
-
-{% include image.html
-    img="/assets/posts/async-deeprl/filter_vis.png"
-    title="Filter visualization of model trained on SpaceInvaders"
-    caption="Figure 6: Filter visualization of the model trained on SpaceInvaders."
-%}
-
-{% include image.html
-    img="/ssets/posts/async-deeprl/q_values.png"
+    img="/assets/posts/async-deeprl/state_rewards28.png"
     title="Q-values prediction of model trained on SpaceInvaders"
-    caption="Figure 7: Model's Q-values prediction for given input state."
+    caption="Figure 5: From left to right: Model's Q-values prediction (rewards for action: left, no action, right), given input state (with stacked previous frames)."
 %}
 
-## Learning more about Deep Reinforcement Learning
+<div class="video">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&loop=1" frameborder="0" allowfullscreen></iframe>
+Figure 6: Agent, trained over 26 millions of frames, plays Atari Breakout.
+</div>
+
+**Pretrained model** on SpaceInvaders can be downloaded from [here](https://docs.google.com/uc?id=0By6rAKVSThTxaTIzYXEwNDl1bzQ&export=download). The model was trained asynchronously in 8 threads over 14 hours on GTX 980 Ti GPU, in total of 26 millions of frames (however it can be trained further).  
+After model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
+
+```bash
+python run_dqn.py --logdir 'model/folder/path' --eval
+```
+
+## Where can I learn more about Deep Reinforcement Learning?
 
 I would suggest you to start from [Andrej Karpathy's post](http://karpathy.github.io/2016/05/31/rl/) - an awesome explanation of *stochastic Policy Gradients* applied to a pong game.  
 To get more intuition about classic Deep Q-Network you may read through [this post](https://www.nervanasys.com/demystifying-deep-reinforcement-learning), and watch [10 David Silver's lectures about RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html).  
 And of course, [David Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf).
 
-To gain some intuition in **deep learning**, I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/). Later, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial one ;) ).
+To gain some intuition in **deep learning**, I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/). Later, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial ones ;) ).
 
 **Some awesome RL papers:**
+
 1. A3C: [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016](https://arxiv.org/abs/1602.01783).
 2. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](http://arxiv.org/pdf/1312.5602v1.pdf).
 3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
 4. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al, 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
 
-And, that's it. Any feedback will be highly appreciated!  
+And, we are done. Any feedback will be highly appreciated.  
 **Thank you for reading, hope you enjoy it!**
