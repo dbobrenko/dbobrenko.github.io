@@ -49,7 +49,7 @@ You may ask:
 **Deep Q Network (DQN)** is probably one of the most famous deep reinforcement learning algorithms nowadays, which uses a core idea of **Q-learning** ([1998, Sutton et al](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf)).  
 Classic Q-learning algorithm contains a function approximator $$Q(s_t, a_t) = \mathbb E[R_t\|s_t, a_t]$$, which predicts *maximum discounted reward if we will perform action `a` in state `s`*. In Q-learning given function approximator represented as a table (called Q-table), where rows - all possible states, columns - all available in-game actions. During learning, such table fills with *maximum discounted rewards* for each action in each state.  
 Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4\times10^{67970}$$ possible states in table, multiplied by the number of actions, which is $$\approx 10^{67961}$$ GB of RAM memory (4 byte float).  
-And that is where comes Deep Q-Network, replacing huge and hulking Q-table with relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (game screen). When rewards for all possible actions in current state recieved, it becomes really easy to play - just choose an action with the highest expected reward!  
+And that is where comes Deep Q-Network, replacing huge and hulking Q-table with relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (example is shown in figure 5). When rewards for all possible actions in current state recieved, it becomes really easy to play - just choose an action with the highest expected reward!  
 Q-function can be represented as a recurrent equation, also called **Bellman equation**:
 
 $$Q(s_t, a_t) = r_t + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}),$$
@@ -87,7 +87,8 @@ Action repeat implementation code ([full code](https://github.com/dbobrenko/asyn
 
 ```python
 def step(env, action_index, action_repeat=4):
-"""Executes an action in OpenAI Gym environment and repeats it on the next X frames"""
+"""Executes an action in OpenAI Gym environment
+   and repeats it on the next X frames"""
 accum_reward = 0
 for _ in range(action_repeat):
     s, r, terminal, info = env.step(action_index)
@@ -111,7 +112,7 @@ In DeepMind paper they solve this problem by taking last four screen images, con
     caption="Figure 4: Example of Pong input screen."
 %}
 
-**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or exploring new ones, maybe better that current". In current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
+**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or **exploring new one**, maybe better that current". In current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
 
 ## TensorFlow implementation<a name="Implementation"></a>
 TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrappers to reduce code, few of them: [keras](https://keras.io/) (used in this post), [slim](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/slim), [tflearn](http://tflearn.org/getting_started/).
@@ -121,7 +122,11 @@ TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrapp
 First, let's define network architecture ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/agent.py)):
 
 ```python
+import tensorflow as tf
+from keras.layers import Convolution2D, Flatten, Dense, Input
+from keras.models import Model
 action_size = 3 # depends on the environment settings
+
 def build_model(h, w, channels, fc3_size=256):
     state = tf.placeholder('float32', shape=(None, h, w, channels))
     inputs = Input(shape=(h, w, channels,))
@@ -131,7 +136,7 @@ def build_model(h, w, channels, fc3_size=256):
                           activation='relu', border_mode='same')(model)
     model = Flatten()(model)
     model = Dense(output_dim=fc3_size, activation='relu')(model)
-    # skip dropout
+    # dropout was skipped for simplicity
     out = Dense(output_dim=action_size, activation='linear')(model)
     model = Model(input=inputs, output=out)
     qvalues = model(state)
@@ -202,7 +207,7 @@ def learner_thread():
                 action_index = random.randrange(action_size)
             else: 
                 action_index = predict_rewards(screen)
-            new_state, reward, terminal = step(env, action_index, action_repeat=4)
+            new_state, reward, terminal = step(env, action_index)
             # Clip reward in [-1; 1] range
             reward = np.clip(reward, -1, 1)
             # Apply future reward discounting
@@ -225,7 +230,7 @@ def learner_thread():
 ```
 
 
-**Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process (benchmarks are shown in Table 1). So thread creation looks like:
+**Asynchronization** was implemented using standard python *threading* module. Despite python Global Interpreter Lock, all main work is done by TensorFlow, which parallelizes training process (benchmarks are shown in Table 1). So threads are created just like:
 
 ```python
 # Run multiple learner threads asynchronously (in e.g. 8 threads):
@@ -239,15 +244,15 @@ for t in thds:
 ## Results
 
 
-As an example, on a figure 6 shown of an input state and output rewards per action of our agent. As you can see, it definitely predicts to stay where it is, or atleast go left, but not right (almost 12 for holding position vs. 10 for going right expected reward values), the reason of low reward for right action is obvious - there is a bullet on hand of the agent, so if it will go there - it will probably die.
+As an example, on a figure 6 shown of an input state and output rewards per action of our agent. As you can see, it definitely predicts to stay where it is, or atleast go left, but not right (almost 12 for holding position vs. 10 for going right expected reward values), the reason for low expected reward for right action is pretty obvious - there is a bullet on hand of the agent, so if it will go there - it will probably die.
 {% include image.html
     img="/assets/posts/async-deeprl/state_rewards28.png"
     title="Q-values prediction of agent trained on SpaceInvaders"
-    caption="Figure 5: From left to right: Model's Q-values prediction (rewards for action: left, no action, right), given input state (with stacked frames)."
+    caption="Figure 5: From left to right: Model's Q-values prediction (rewards for action: left, no action, right), given input state (with stacked previous frames)."
 %}
 
 <div class="video">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&amp;loop=1&amp;rel=0&amp;showinfo=0&amp;playlist=YtKdFcfdq9Y" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&loop=1" frameborder="0" allowfullscreen></iframe>
 Figure 6: Agent, trained over 26 millions of frames, plays Atari Breakout.
 </div>
 
@@ -259,8 +264,7 @@ python run_dqn.py --logdir 'model/folder/path' --eval
 ```
 
 
-
-<div style="text-align: right"><b>Table 1.</b> Benchmark current Asynchronous one-step Q-Learning algorithm implementation.</div>
+<div style="text-align: right"><b>Table 1.</b> Current implementation of Asynchronous one-step Q-Learning algorithm benchmarks.</div>
 
 |   **Device**                                        |   **Input shape**     |   **FPS**   |
 |:----------------------------------------------------|:---------------------:|:-----------:|
@@ -273,14 +277,14 @@ I would suggest you to start from [Andrej Karpathy's post](http://karpathy.githu
 To get more intuition about classic Deep Q-Network you may read through [this post](https://www.nervanasys.com/demystifying-deep-reinforcement-learning), and watch [10 David Silver's lectures about RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html).  
 And of course, [David Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf).
 
-To gain some intuition in **deep learning**, I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/). Later, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial ones ;) ).
+To gain some understanding in **deep learning**, I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/). Later, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial ones ;) ).
 
 **Some awesome RL papers:**
 
 1. A3C: [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016](https://arxiv.org/abs/1602.01783).
-2. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](https://arxiv.org/abs/1312.5602).
-3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](https://arxiv.org/abs/1509.02971).
+2. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](http://arxiv.org/pdf/1312.5602v1.pdf).
+3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
 4. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al, 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
 
-And that's it! Any feedback will be highly appreciated.  
+And, we are done. Any feedback will be highly appreciated.  
 **Thank you for reading, hope you enjoy it!**
