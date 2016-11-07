@@ -243,11 +243,11 @@ As an example, on a figure 6 shown of an input state and output rewards per acti
 {% include image.html
     img="/assets/posts/async-deeprl/state_rewards28.png"
     title="Q-values prediction of agent trained on SpaceInvaders"
-    caption="Figure 5: From left to right: Model's Q-values prediction (rewards for action: left, no action, right), given input state (with stacked previous frames)."
+    caption="Figure 5: From left to right: Model's Q-values prediction (rewards for action: left, no action, right), given input state (with stacked frames)."
 %}
 
 <div class="video">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&amp;loop=1&amp;" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y&autoplay=1&loop=1&playlist=YtKdFcfdq9Y" frameborder="0" allowfullscreen></iframe>
 Figure 6: Agent, trained over 26 millions of frames, plays Atari Breakout.
 </div>
 
