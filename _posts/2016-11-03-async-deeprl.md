@@ -115,7 +115,7 @@ In DeepMind paper they solve this problem by taking last four screen images, con
 %}
 
 
-**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or **exploring new one**, maybe better that current. In current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
+**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or **exploring new one**, maybe better that current. In current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution taken three values: `{0.1, 0.01, 0.5}` with probabilities `{0.4, 0.3, 0.3}` respectively, separately for each learner thread. During course of training, inital $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
 
 ## TensorFlow implementation<a name="Implementation"></a>
 TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrappers to reduce code, few of them: [keras](https://keras.io/) (used in this post), [slim](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/slim), [tflearn](http://tflearn.org/getting_started/).
@@ -147,7 +147,7 @@ def build_model(h, w, channels, fc3_size=256):
 ```
 
 
-In the original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. To simplify, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
+In the original implementation they've used [RMSProp](http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf) optimizer with `decay=0.99`, `epsilon=0.1` and linearly annealing learning rate over the course of training. To simplify, I've replaced all of this stuff with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
 
 ```python
 w = 84 # screen width
