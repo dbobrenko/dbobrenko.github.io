@@ -9,10 +9,10 @@ mathjax: true
 
 **Deep Reinforcement Learning** has recently become a really hot area of research, due to the huge amount of breakthroughs in last couple of years. Such explosion started by a group of scientists from a start-up company called DeepMind (later it was acquired by Google), who decided to apply current deep learning progress to existing reinforcement learning (RL) approaches. The result paper [Playing Atari with Deep Reinforcement Learning", Mnih et al., 2013](https://arxiv.org/abs/1312.5602) recieves a lot of attention in Artificial Intelligence (AI) community, since it is the first time, when a single algorithm, using only raw pixels observations, successfully learns how to survive in absolutely different evironments, with different rules and objectives, and in some of the games, it even outperforms human!
 
-**Many improvements** have been made to Deep Q-Network (DQN) since 2013. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with [OpenAI's Gym](https://gym.openai.com/) classic Atari 2600 games (however it can work with any OpenAI Gym environment with raw visual input).  
+**Many improvements** have been made to Deep Q-Network (DQN) since 2013. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with [OpenAI's Gym](https://gym.openai.com/) classic Atari 2600 SpaceInvaders game (however it can work with any OpenAI Gym environment with raw visual input).  
 Although, the main breakthrough of their paper is state-of-the-art policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post.
 
-**For implementation** was used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
+**For implementation** were used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
 Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
 
 {% include image.html
@@ -40,13 +40,13 @@ You may ask:
 1. Why does the future rewards are important? Can't we just take into account only **immediate rewards** (i.e. $$\gamma = 0$$)?
 
    *Firstly, predicting future rewards gives agent an ability to think "three steps ahead".*
-*Secondly, in almost all games and scenarios, first actions are more important than later one. That's why rewards for earlier actions includes all rewards for further actions.*
-*And finally, thirdly, rewards in many games are delayed to the end of the game, so without reward discountation actions during the game won't have any reward label at all.*
+*Secondly, in almost all games and scenarios, first actions are more important than later ones. That's why rewards for earlier actions include all rewards for further actions.*
+*And finally, rewards in many games are delayed to the end of the game, so without reward discounting, all actions except last one will have zero reward values.*
 2. Then why we just dont take **total discounted future reward** (i.e. $$\gamma = 1$$)?
 
-   *The more we will go into the future, the more uncertainty we will get. Imagine you are playing poker or any card game - there will be no guarantee that actions that lead you to the states in past will lead you to the same states in future, and further you will go, the lesser probability to repeat the same sequence of states will be.*
+   *The more we go in the future, the more uncertain we get. Imagine you are playing poker or any card game - there will be no guarantee that actions that lead you to the states in the past will lead you to the same states in the future, and the further you go, the smaller probability to repeat the same sequence of states.*
 
-**Deep Q Network (DQN)** is probably one of the most famous deep reinforcement learning algorithms nowadays, which uses a core idea of **Q-learning** ([1998, Sutton et al](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf)).  
+**Deep Q Network (DQN)** is probably one of the most famous deep reinforcement learning algorithms nowadays, which uses a core idea of **Q-learning** ([Watkins and Dayan, 1992](http://www.gatsby.ucl.ac.uk/~dayan/papers/cjch.pdf)).  
 Classic Q-learning algorithm contains a function approximator $$Q(s_t, a_t) = \mathbb E[R_t\|s_t, a_t]$$, which predicts *maximum discounted reward if we will perform action `a` in state `s`*. In Q-learning given function approximator represented as a table (called Q-table), where rows - all possible states, columns - all available in-game actions. During learning, such table fills with *maximum discounted rewards* for each action in each state.  
 Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4\times10^{67970}$$ possible states in table, multiplied by the number of actions, which is $$\approx 10^{67961}$$ GB of RAM memory (4 byte float).  
 And that is where comes Deep Q-Network, replacing huge and hulking Q-table with relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (example is shown in figure 5). When rewards for all possible actions in current state recieved, it becomes really easy to play - just choose an action with the highest expected reward!  
@@ -83,7 +83,7 @@ In this topic I will walk through one-step version.
 ## Tips and Tricks
 **Action repeat** is a nice feature that will help to speed-up training process. Since neighbour frames are almost identical to each other, we will repeat last action on the next 4 frames.  
 *Keep in mind, that some games have "rounds" (most Atari games do), in order to avoid repeating actions from last game in new one, and not to predict expected future rewards for current game, based on state from the next game, we should handle end of these rounds as terminal states*.  
-Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L120)):
+Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L124)):
 
 ```python
 def step(env, action_index, action_repeat=4):
@@ -95,24 +95,27 @@ for _ in range(action_repeat):
     accum_reward += r
     if terminal:
         break
+    # some preprocess function with resizing, turning to grayscale, etc
+    # s = preprocess(s, w, h, channels)
 return s, accum_reward, terminal, info
 ```
 
 
 **Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.  
-In DeepMind paper they solve this problem by taking last four screen images, converting them to grayscale, resizing to 84x84 and stacking together. As shown on figure 3 and 4, having such history about previous frames gives us an information about objects velocity. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame ([implementation](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L50)).  
-{% include image.html
-    img="/assets/posts/async-deeprl/input_si.png"
-    title="SpaceInvaders input"
-    caption="Figure 3: Example of SpaceInvaders input screen."
-%}
+In DeepMind paper they solve this problem by taking last four screen images, converting them to grayscale, resizing to 84x84 and stacking together. As shown on figure 3 and 4, having such history about previous frames gives us an information about objects velocity. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame ([implementation](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L109)).  
 {% include image.html
     img="/assets/posts/async-deeprl/input_pong.png"
     title="Pong input"
-    caption="Figure 4: Example of Pong input screen."
+    caption="Figure 3: Example of Pong input screen."
+%}
+{% include image.html
+    img="/assets/posts/async-deeprl/input_si.png"
+    title="SpaceInvaders input"
+    caption="Figure 4: Example of SpaceInvaders input screen."
 %}
 
-**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or **exploring new one**, maybe better that current". In current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
+
+**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or **exploring new one**, maybe better that current. In current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution of [0.1, 0.01, 0.5] with [0.4, 0.3, 0.3] probabilities respectively, separately for each learner thread. During course of training, inital $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
 
 ## TensorFlow implementation<a name="Implementation"></a>
 TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrappers to reduce code, few of them: [keras](https://keras.io/) (used in this post), [slim](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/slim), [tflearn](http://tflearn.org/getting_started/).
@@ -136,7 +139,7 @@ def build_model(h, w, channels, fc3_size=256):
                           activation='relu', border_mode='same')(model)
     model = Flatten()(model)
     model = Dense(output_dim=fc3_size, activation='relu')(model)
-    # dropout was skipped for simplicity
+    # dropout was skipped for sake of simplicity
     out = Dense(output_dim=action_size, activation='linear')(model)
     model = Model(input=inputs, output=out)
     qvalues = model(state)
@@ -144,9 +147,12 @@ def build_model(h, w, channels, fc3_size=256):
 ```
 
 
-In the original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. For simplicity, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
+In the original implementation they've used RMSProp optimizer with decay=0.99, epsilon=0.1 and linearly annealing learning rate to zero across training. To simplify, I've replaced all of it with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
 
 ```python
+w = 84 # screen width
+h = 84 # screen height
+channels = 4 # number of stacked frames, used as network's memory
 with tf.variable_scope('network'):
     action = tf.placeholder('int32', [None], name='action')
     reward = tf.placeholder('float32', [None], name='reward')
@@ -158,13 +164,13 @@ with tf.variable_scope('optimizer'):
     action_q = tf.reduce_sum(tf.mul(q_values, action_onehot),
                              reduction_indices=1)
     loss = tf.reduce_mean(tf.square(reward - action_q))
-    opt = tf.train.AdamOptimizer(lr, epsilon=0.1)
+    opt = tf.train.AdamOptimizer(lr)
     train_op = opt.minimize(loss, var_list=weights)
 with tf.variable_scope('target_network'):
-    target_m, target_state, target_q_values = build_model(h, w, channels)
-    target_w = target_m.trainable_weights
+    t_model, target_state, target_q_values = build_model(h, w, channels)
+    t_w = t_model.trainable_weights
 with tf.variable_scope('target_update'):
-    target_update = [target_w[i].assign(weights[i]) for i in range(len(target_w))]
+    target_update = [t_w[i].assign(weights[i]) for i in range(len(t_w))]
 ```
 
 
@@ -244,11 +250,11 @@ for t in thds:
 ## Results
 
 
-As an example, on a figure 6 shown of an input state and output rewards per action of our agent. As you can see, it definitely predicts to stay where it is, or atleast go left, but not right (almost 12 for holding position vs. 10 for going right expected reward values), the reason for low expected reward for right action is pretty obvious - there is a bullet on hand of the agent, so if it will go there - it will probably die.
+As an example, on a figure 6 shown an input state and output rewards per action of our agent. As you can see, it predicts to stay where it is, or at least go left, but definitely not to the right (almost 12 for holding position vs. 10 for going right expected reward values). The cause of the low expected reward for right action is pretty obvious - there is an enemy bullet on the right hand of the agent.
 {% include image.html
     img="/assets/posts/async-deeprl/state_rewards28.png"
     title="Q-values prediction of agent trained on SpaceInvaders"
-    caption="Figure 5: From left to right: Model's Q-values prediction (rewards for action: left, no action, right), given input state (with stacked previous frames)."
+    caption="Figure 5: From left to right: Model's Q-values prediction (rewards for actions: move left, hold, move right), given input state (with stacked previous frames)."
 %}
 
 <div class="video">
@@ -268,8 +274,8 @@ python run_dqn.py --logdir 'model/folder/path' --eval
 
 |   **Device**                                        |   **Input shape**     |   **FPS**   |
 |:----------------------------------------------------|:---------------------:|:-----------:|
-| GPU **GTX 980 Ti**                                  | $$84\times84\times4$$ |   **540**   |
-| CPU **Core i7-3770 @ 3.40GHz** (4 cores, 8 threads) | $$84\times84\times4$$ |   **315**   |
+| GPU **GTX 980 Ti**                                  | $$84\times84\times4$$ |   **530**   |
+| CPU **Core i7-3770 @ 3.40GHz** (4 cores, 8 threads) | $$84\times84\times4$$ |   **300**   |
 
 ## Where can I learn more about Deep Reinforcement Learning?
 
@@ -284,7 +290,7 @@ To gain some understanding in **deep learning**, I would recommend [Nielsen's on
 1. A3C: [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016](https://arxiv.org/abs/1602.01783).
 2. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](http://arxiv.org/pdf/1312.5602v1.pdf).
 3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
-4. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al, 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
+4. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al., 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
 
-And, we are done. Any feedback will be highly appreciated.  
+And that's it! Any feedback will be highly appreciated.  
 **Thank you for reading, hope you enjoy it!**
