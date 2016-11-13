@@ -71,7 +71,8 @@ And now, if you will think about maximum discounted reward for the next state $$
 
 **Ok. But how it can work?** That seems to be insane, especially for those, who are familiar with supervised learning. Of course, at early iterations, an approximation of $$Q(s_{t+1}, a_{t+1})$$ will return an absolute garbage, however, over a long time of training, prediction of future expected rewards will become more and more accurate and finally it will converge ([a proof of Q-learning convergence](http://users.isr.ist.utl.pt/~mtjspaan/readingGroup/ProofQlearning.pdf)).
 
-**Asynchronous one-step and n-step Q-Learning**. The main change they made to DQN since 2013 - is asynchronous training in multiple game environments at the same time. Such approach significantly speeds-up convergence, and allows us to train it on a single multicore CPU instead of GPU (compared to vanilla DQN and other deep RL methods).  
+**Asynchronous one-step and n-step Q-Learning**. The main change they made to DQN since 2013, as you might might guess - is asynchronous training in multiple game environments at the same time. Such approach significantly speeds-up convergence, and allows us to train it on a single multicore CPU instead of GPU (compared to vanilla DQN and other deep RL methods). Another important change is in replay memory - there is no need in replaying past experience anymore, since parallel actor-learners happens to be in a different independent environments, which leads to a similar stabilizing effect, as in case of training on random samples from past experience (such hack is necessary for reducing temporal correlations between consecutive updates; for details of experience replay techniques you may read through [Prioritized Experience Replay, T. Schaul et al., 2016](https://arxiv.org/abs/1511.05952)).
+
 They have presented two versions of asynchronous deep Q-Learning: *one-step* and *n-step* Q-learning. The main difference, is that n-step explicitly computes n-step returns by predicting expected discounted future reward only after `n` steps, backpropagating predicted value on earlier actions, instead of predicting it after each step.  
 In this topic I will walk through one-step version.
 {% include image.html
@@ -147,7 +148,7 @@ def build_model(h, w, channels, fc3_size=256):
 ```
 
 
-In the original implementation they've used [RMSProp](http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf) optimizer with `decay=0.99`, `epsilon=0.1` and linearly annealing learning rate over the course of training. To simplify, I've replaced all of this stuff with [Adam](https://arxiv.org/abs/1412.6980) optimizer:
+In the original implementation they've used [RMSProp](http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf) optimizer with `decay=0.99`, `epsilon=0.1`, linearly annealing learning rate over the course of training and shared statistics across threads. To simplify, I've replaced all of this stuff with [Adam](https://arxiv.org/abs/1412.6980) optimizer (however it can be more unstable than shared RMSProp):
 
 ```python
 w = 84 # screen width
@@ -281,9 +282,11 @@ python run_dqn.py --logdir 'model/folder/path' --eval
 
 I would suggest you to start from [Andrej Karpathy's post](http://karpathy.github.io/2016/05/31/rl/) - an awesome explanation of *stochastic Policy Gradients* applied to a pong game.  
 To get more intuition about classic Deep Q-Network you may read through [this post](https://www.nervanasys.com/demystifying-deep-reinforcement-learning), and watch [10 David Silver's lectures about RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html).  
-And of course, [David Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf).
+And of course, [David Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf). 
 
 To gain some understanding in **deep learning**, I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/). Later, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial ones ;) ).
+
+Recorded presentation speech of A3C from NIPS workshop can be found [here](https://youtu.be/9sx1_u2qVhQ).
 
 **Some awesome RL papers:**
 
