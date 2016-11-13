@@ -148,7 +148,7 @@ def build_model(h, w, channels, fc3_size=256):
 ```
 
 
-In the original implementation they've used [RMSProp](http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf) optimizer with `decay=0.99`, `epsilon=0.1`, linearly annealing learning rate over the course of training and shared statistics across threads. To simplify, I've replaced all of this stuff with [Adam](https://arxiv.org/abs/1412.6980) optimizer (however it can be more unstable than shared RMSProp):
+In the original implementation they've used [RMSProp](http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf) optimizer with shared statistics across threads, `decay=0.99`, `epsilon=0.1` and linearly annealing learning rate over the course of training. To simplify, I've replaced all of this stuff with [Adam](https://arxiv.org/abs/1412.6980) optimizer (however it can be more unstable compared to shared RMSProp):
 
 ```python
 w = 84 # screen width
