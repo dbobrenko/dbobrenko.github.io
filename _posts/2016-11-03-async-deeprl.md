@@ -10,7 +10,8 @@ mathjax: true
 **Deep Reinforcement Learning** has recently become a really hot area of research, due to the huge amount of breakthroughs in last couple of years. Such explosion started by a group of scientists from a start-up company called DeepMind (later it was acquired by Google), who decided to apply current deep learning progress to existing reinforcement learning (RL) approaches. The result paper [Playing Atari with Deep Reinforcement Learning", Mnih et al., 2013](https://arxiv.org/abs/1312.5602) recieves a lot of attention in Artificial Intelligence (AI) community, since it is the first time, when a single algorithm, using only raw pixels observations, successfully learns how to survive in absolutely different evironments, with different rules and objectives, and in some of the games, it even outperforms human!
 
 **Many improvements** have been made to Deep Q-Network (DQN) since 2013. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with [OpenAI's Gym](https://gym.openai.com/) classic Atari 2600 SpaceInvaders game (however it can work with any OpenAI Gym environment with raw visual input).  
-Although, the main breakthrough of their paper is state-of-the-art policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post.
+Although, the main breakthrough of their paper policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post. 
+*Update 18.11.2016:* current state-of-the-art introduced in their paper ["Reinforcement Learning with Unsupervised Auxiliary Tasks" (UNREAL)](https://arxiv.org/pdf/1611.05397.pdf), which is based on A3C method.
 
 **For implementation** were used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
 Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
@@ -286,14 +287,15 @@ And of course, [David Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/b
 
 To gain some understanding in **deep learning**, I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/). Later, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial ones ;) ).
 
-Recorded presentation speech of A3C from NIPS workshop can be found [here](https://youtu.be/9sx1_u2qVhQ).
+Recorded speech about A3C from NIPS workshop can be found [here](https://youtu.be/9sx1_u2qVhQ).
 
 **Some awesome RL papers:**
 
 1. A3C: [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016](https://arxiv.org/abs/1602.01783).
-2. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](http://arxiv.org/pdf/1312.5602v1.pdf).
-3. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
-4. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al., 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
+2. UNREAL: [Reinforcement Learning with Unsupervised Auxiliary Tasks](https://arxiv.org/pdf/1611.05397.pdf)
+3. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](http://arxiv.org/pdf/1312.5602v1.pdf).
+4. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
+5. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al., 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
 
 And that's it! Any feedback will be highly appreciated.  
 **Thank you for reading, hope you enjoy it!**
