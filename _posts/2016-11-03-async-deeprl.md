@@ -86,7 +86,7 @@ In this topic I will walk through one-step version.
 ## Tips and Tricks
 **Action repeat** is a nice feature that will help to speed-up training process. Since neighbour frames are almost identical to each other, we will repeat last action on the next 4 frames.  
 *Keep in mind, that some games have "rounds" (most Atari games do), in order to avoid repeating actions from last game in new one, and not to predict expected future rewards for current game, based on state from the next game, we should handle end of these rounds as terminal states*.  
-Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L124)):
+Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L143)):
 
 ```python
 def step(env, action_index, action_repeat=4):
@@ -105,7 +105,7 @@ return s, accum_reward, terminal, info
 
 
 **Preprocessing input screen.** Since we are using ConvNets - they have no internal memory, unlike recurrent neural networks. Without having information about previous frames - agent won't be able to infer the velocity of game objects.  
-In DeepMind paper they solve this problem by taking last four screen images, converting them to grayscale, resizing to 84x84 and stacking together. As shown on figure 3 and 4, having such history about previous frames gives us an information about objects velocity. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame ([implementation](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L109)).  
+In DeepMind paper they solve this problem by taking last four screen images, converting them to grayscale, resizing to 84x84 and stacking together. As shown on figure 3 and 4, having such history about previous frames gives us an information about objects velocity. Combined with action repeat approach, we will stack only every 4th frame, so the input to the network will be: 1st, 5th, 9th and 13th frame ([implementation](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L126)).  
 {% include image.html
     img="/assets/posts/async-deeprl/input_pong.png"
     title="Pong input"
