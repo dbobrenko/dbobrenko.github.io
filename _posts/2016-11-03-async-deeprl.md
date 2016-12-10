@@ -12,7 +12,7 @@ mathjax: true
 **Many improvements** have been made to Deep Q-Network (DQN) since 2013. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with [OpenAI's Gym](https://gym.openai.com/) classic Atari 2600 SpaceInvaders game (however it can work with any OpenAI Gym environment with raw visual input).  
 Although, the main breakthrough of their paper policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post.
 
-*Update 18.11.2016:* current state-of-the-art introduced in their paper ["Reinforcement Learning with Unsupervised Auxiliary Tasks"](https://arxiv.org/pdf/1611.05397.pdf) (UNREAL), which is based on A3C method.
+*Update 18.11.2016:* current state-of-the-art introduced in their new paper ["Reinforcement Learning with Unsupervised Auxiliary Tasks"](https://arxiv.org/pdf/1611.05397.pdf) (UNREAL), which is also based on A3C method.
 
 **For implementation** were used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
 Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
@@ -249,23 +249,21 @@ for t in thds:
     t.start()
 ```
 
-
 ## Results
 
 
-As an example, on a figure 6 shown an input state and output rewards per action of our agent. As you can see, it predicts to stay where it is, or at least go left, but definitely not to the right (almost 12 for holding position vs. 10 for going right expected reward values). The cause of the low expected reward for right action is pretty obvious - there is an enemy bullet on the right hand of the agent.
-{% include image.html
-    img="/assets/posts/async-deeprl/state_rewards28.png"
-    title="Q-values prediction of agent trained on SpaceInvaders"
-    caption="Figure 5: From left to right: Model's Q-values prediction (rewards for actions: move left, hold, move right), given input state (with stacked previous frames)."
-%}
-
 <div class="video">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/YtKdFcfdq9Y?autoplay=1&loop=1&rel=0&showinfo=0&color=white&iv_load_policy=3&playlist=YtKdFcfdq9Y" frameborder="0" allowfullscreen></iframe>
-Figure 6: Agent, trained over 26 millions of frames, plays Atari Breakout.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/rz2qWeMaqtw?autoplay=1&loop=1&rel=0&showinfo=0&color=white&iv_load_policy=3&playlist=rz2qWeMaqtw" frameborder="0" allowfullscreen></iframe>
+Figure 5: Agent, trained over 80 millions of frames, plays Atari SpaceInvaders.
 </div>
 
-**Pretrained model** on SpaceInvaders can be downloaded from [here](https://docs.google.com/uc?id=0By6rAKVSThTxaTIzYXEwNDl1bzQ&export=download). The model was trained asynchronously in 8 threads over 14 hours on GTX 980 Ti GPU, in total of 26 millions of frames (however it can be trained further).  
+{% include image.html
+    img="/assets/posts/async-deeprl/si-momentum-lr3-reward.png"
+    title="Agent's evaluation score during training"
+    caption="Figure 6: Average episode reward during course of training on SpaceInvaders."
+%}
+
+**Pretrained model** on SpaceInvaders can be downloaded from [here](https://doc-14-8c-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/jkj8v0qrd2m2qog0s6h3ge18jnh48kcr/1481392800000/17750014777523990784/*/0By6rAKVSThTxRGYwRWlfM09MZTg?e=download). The model was trained asynchronously in 8 threads over 40 hours on GTX 980 Ti GPU, in total of 80 millions of frames.  
 After model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
 
 ```bash
