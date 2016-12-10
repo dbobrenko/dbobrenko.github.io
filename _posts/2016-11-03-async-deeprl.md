@@ -2,7 +2,7 @@
 layout: post 
 comments: true
 title: Asynchronous Deep Reinforcement Learning from pixels
-excerpt: "I'll implement and explain an idea of Asynchronous one-step Q-Learning. As an example will be trained an agent to play in classic Atari games, using just a raw pixels!" 
+excerpt: "I'll implement and explain an idea of Asynchronous one-step Q-Learning. As an example will be trained an agent to play in Atari SpaceInvaders game, using just a raw pixels!" 
 date: 2016-11-03 22:00:00 
 mathjax: true
 ---
@@ -251,16 +251,18 @@ for t in thds:
 
 ## Results
 
+Here it is some results obtained after training on 80 millions of frames (shown on figure 5 and 6 - demonstation of play and agent's progress during training respectively):
 
 <div class="video">
 <iframe width="560" height="315" src="https://www.youtube.com/embed/rz2qWeMaqtw?autoplay=1&loop=1&rel=0&showinfo=0&color=white&iv_load_policy=3&playlist=rz2qWeMaqtw" frameborder="0" allowfullscreen></iframe>
 Figure 5: Agent, trained over 80 millions of frames, plays Atari SpaceInvaders.
 </div>
 
+
 {% include image.html
     img="/assets/posts/async-deeprl/si-momentum-lr3-reward.png"
     title="Agent's evaluation score during training"
-    caption="Figure 6: Average episode reward during course of training on SpaceInvaders."
+    caption="Figure 6: Average episode reward during course of training on SpaceInvaders (light blue curve - actual average episode reward, blue curve - smoothed average episode reward)."
 %}
 
 **Pretrained model** on SpaceInvaders can be downloaded from [here](https://doc-14-8c-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/jkj8v0qrd2m2qog0s6h3ge18jnh48kcr/1481392800000/17750014777523990784/*/0By6rAKVSThTxRGYwRWlfM09MZTg?e=download). The model was trained asynchronously in 8 threads over 40 hours on GTX 980 Ti GPU, in total of 80 millions of frames.  
