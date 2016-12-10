@@ -258,13 +258,13 @@ Here it is some results obtained after training on 80 millions of frames (shown 
 {% include image.html
     img="/assets/posts/async-deeprl/si-momentum-lr3-reward.png"
     title="Agent's evaluation score during training"
-    caption="Figure 6: Average episode reward during course of training on SpaceInvaders (light cyan curve - actual average episode reward, cyan curve - smoothed average episode reward)."
+    caption="Figure 5: Average episode reward during course of training on SpaceInvaders (light cyan curve - actual average episode reward, cyan curve - smoothed average episode reward)."
 %}
 
 
 <div class="video">
 <iframe width="560" height="315" src="https://www.youtube.com/embed/rz2qWeMaqtw?autoplay=1&loop=1&rel=0&showinfo=0&color=white&iv_load_policy=3&playlist=rz2qWeMaqtw" frameborder="0" allowfullscreen></iframe>
-Figure 5: Agent, trained over 80 millions of frames, plays Atari SpaceInvaders.
+Figure 6: Agent, trained over 80 millions of frames, plays Atari SpaceInvaders.
 </div>
 
 
