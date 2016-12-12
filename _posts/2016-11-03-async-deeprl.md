@@ -80,7 +80,7 @@ In this topic I will walk through one-step version.
 {% include image.html
     img="/assets/posts/async-deeprl/onestep_alg.jpg"
     title="Asynchronous Q-Learning algorithm pseudo-code"
-    caption="Figure 2: Asynchronous Q-Learning algorithm pseudo-code (Mnih et al, 2016)."
+    caption="Figure 2: Asynchronous Q-Learning algorithm pseudo-code (Mnih et al., 2016)."
 %}
 
 ## Tips and Tricks
@@ -287,16 +287,16 @@ python run_dqn.py --logdir 'model/folder/path' --eval
 
 I would suggest you to start from [Andrej Karpathy's post](http://karpathy.github.io/2016/05/31/rl/) - an awesome explanation of *stochastic Policy Gradients* applied to a pong game.  
 To get more intuition about classic Deep Q-Network you may read through [this post](https://www.nervanasys.com/demystifying-deep-reinforcement-learning), and watch [10 David Silver's lectures about RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html).  
-And of course, [David Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf). 
+And of course, [Richard Sutton's RL book](https://webdocs.cs.ualberta.ca/~sutton/book/bookdraft2016sep.pdf). 
 
 To gain some understanding in **deep learning**, I would recommend [Nielsen's online book](http://neuralnetworksanddeeplearning.com/). Later, work through [CS231n Stanford lectures](http://cs231n.github.io/) (unfortunately official video lectures were removed from youtube, but probably, somewhere, there might be an unofficial ones ;) ).
 
-Recorded speech about A3C from NIPS workshop can be found [here](https://youtu.be/9sx1_u2qVhQ).
+Finally, recorded A3C speech from NIPS workshop can be found [here](https://youtu.be/9sx1_u2qVhQ).
 
 **Some awesome RL papers:**
 
 1. A3C: [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016](https://arxiv.org/abs/1602.01783).
-2. UNREAL: [Reinforcement Learning with Unsupervised Auxiliary Tasks](https://arxiv.org/pdf/1611.05397.pdf)
+2. UNREAL: [Reinforcement Learning with Unsupervised Auxiliary Tasks, Jaderberg et al., 2016](https://arxiv.org/pdf/1611.05397.pdf). 
 3. DQN: [Playing Atari with Deep Reinforcement Learning, Mnih et al., 2013](http://arxiv.org/pdf/1312.5602v1.pdf).
 4. Deterministic Deep Policy Gradients: [Continuous control with deep reinforcement learning, Lillicrap, Hunt et al., 2016](http://arxiv.org/pdf/1509.02971v5.pdf).
 5. Deterministic Policy Gradients: [Deterministic Policy Gradient Algorithms, Silver et al., 2014](http://jmlr.org/proceedings/papers/v32/silver14.pdf).
