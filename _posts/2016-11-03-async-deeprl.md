@@ -268,7 +268,7 @@ Figure 6: Agent, trained over 80 millions of frames, plays Atari SpaceInvaders.
 </div>
 
 
-**Pretrained model** on SpaceInvaders can be downloaded from [here](https://doc-14-8c-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/jkj8v0qrd2m2qog0s6h3ge18jnh48kcr/1481392800000/17750014777523990784/*/0By6rAKVSThTxRGYwRWlfM09MZTg?e=download). The model was trained asynchronously in 8 threads over 40 hours on GTX 980 Ti GPU, in total of 80 millions of frames.  
+**Pretrained model** on SpaceInvaders can be downloaded from [here](https://drive.google.com/file/d/0By6rAKVSThTxRGYwRWlfM09MZTg/view). The model was trained asynchronously in 8 threads over 40 hours on GTX 980 Ti GPU, in total of 80 millions of frames.  
 After model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
 
 ```bash
