@@ -7,15 +7,14 @@ date: 2016-11-03 22:00:00
 mathjax: true
 ---
 
-**Deep Reinforcement Learning** has recently become a really hot area of research, due to the huge amount of breakthroughs in last couple of years. Such explosion started by a group of scientists from a start-up company called DeepMind (later it was acquired by Google), who decided to apply current deep learning progress to existing reinforcement learning (RL) approaches. The result paper [Playing Atari with Deep Reinforcement Learning", Mnih et al., 2013](https://arxiv.org/abs/1312.5602) recieves a lot of attention in Artificial Intelligence (AI) community, since it is the first time, when a single algorithm, using only raw pixels observations, successfully learns how to survive in absolutely different evironments, with different rules and objectives, and in some of the games, it even outperforms human!
+**Deep Reinforcement Learning** has recently become a really hot area of research, due to the huge amount of breakthroughs in the last couple of years. Such explosion started by a group of scientists from a start-up company called DeepMind (later it was acquired by Google), who decided to apply current deep learning progress to existing reinforcement learning (RL) approaches. The result paper [Playing Atari with Deep Reinforcement Learning", Mnih et al., 2013](https://arxiv.org/abs/1312.5602) receives a lot of attention in Artificial Intelligence (AI) community, since it is the first time, when a single algorithm, using only raw pixels observations, successfully learns how to survive in absolutely different environments, with different rules and objectives, and in some of the games, it even outperforms human!
 
 **Many improvements** have been made to Deep Q-Network (DQN) since 2013. In this topic we will implement Google DeepMind's asynchronous one-step Q-Learning method, presented in [Asynchronous Methods for Deep Reinforcement Learning, Mnih et al., 2016.](https://arxiv.org/abs/1602.01783), with [OpenAI's Gym](https://gym.openai.com/) classic Atari 2600 SpaceInvaders game (however it can work with any OpenAI Gym environment with raw visual input).  
-Although, the main breakthrough of their paper policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in current post.
+Although, the main breakthrough of their paper policy-based *Asynchronous Advantage Actor-Critic Network (A3C)*, which outperforms value-based Q-Learning methods in both data efficiency and accuracy, it won't be covered in the current post.
 
-*Update 18.11.2016:* current state-of-the-art introduced in their new paper ["Reinforcement Learning with Unsupervised Auxiliary Tasks"](https://arxiv.org/pdf/1611.05397.pdf) (UNREAL), which is also based on A3C method.
 
 **For implementation** were used a deep learning [TensorFlow](http://tensorflow.org) and [Keras](https://keras.io/) libraries.
-Code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
+The code used in this topic can be found at my [github repository](https://github.com/dbobrenko/async-deeprl). All requirements are listed [here](https://github.com/dbobrenko/async-deeprl#requirements).
 
 {% include image.html
     img="/assets/posts/async-deeprl/si_sample.gif"
@@ -24,10 +23,10 @@ Code used in this topic can be found at my [github repository](https://github.co
 %}
 
 ## Basic theory
-Since purpose of this post is to overview and gain intuition in Deep RL basics, all deep learning stuff will be discussed very briefly, instead focusing on reinforcement learning ([skip this boring theory!](#Implementation)).
+Since the purpose of this post is to overview and gain intuition in Deep RL basics, all deep learning stuff will be discussed very briefly, instead focusing on reinforcement learning ([skip this boring theory!](#Implementation)).
 
 
-**Rewards**. Usually, all reinfocement learning problems are based on rewards. The higher reward you recieve, the better you are doing. Though, rewards are not always immediate - there might be a delay between correct action and reward in a few milliseconds, seconds or even hours (in our case timesteps). And here comes first challenge of reinforcement learning called **credit assignment problem** - how can we decide what exactly action leads to the received reward? One of the most used methods to solve this problem called **discounted future rewards**. The main idea is to discount all future rewards by the factor of $$\gamma$$:
+**Rewards**. Usually, all reinforcement learning problems are based on rewards. The higher reward you receive, the better you are doing. Though, rewards are not always immediate - there might be a delay between correct action and reward in a few milliseconds, seconds or even hours (in our case timesteps). And here comes the first challenge of reinforcement learning called **credit assignment problem** - how can we decide what exactly action leads to the received reward? One of the most used methods to solve this problem called **discounted future rewards**. The main idea is to discount all future rewards by the factor of $$\gamma$$:
 
 $$R_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + ... + \gamma^{n-1} r_n,$$
 
@@ -39,20 +38,20 @@ where $$\gamma$$ usually equals to 0.9 or 0.99 - the further reward from current
 
 You may ask:
 
-1. Why does the future rewards are important? Can't we just take into account only **immediate rewards** (i.e. $$\gamma = 0$$)?
+1. Why do the future rewards are important? Can't we just take into account only **immediate rewards** (i.e. $$\gamma = 0$$)?
 
    *Firstly, predicting future rewards gives agent an ability to think "three steps ahead".*
 *Secondly, in almost all games and scenarios, first actions are more important than later ones. That's why rewards for earlier actions include all rewards for further actions.*
-*And finally, rewards in many games are delayed to the end of the game, so without reward discounting, all actions except last one will have zero reward values.*
-2. Then why we just dont take **total discounted future reward** (i.e. $$\gamma = 1$$)?
+*And finally, rewards in many games are delayed to the end of the game, so without reward discounting, all actions except the last one will have zero reward values.*
+2. Then why we just don't take **total discounted future reward** (i.e. $$\gamma = 1$$)?
 
    *The more we go in the future, the more uncertain we get. Imagine you are playing poker or any card game - there will be no guarantee that actions that lead you to the states in the past will lead you to the same states in the future, and the further you go, the smaller probability to repeat the same sequence of states.*
 
 **Deep Q Network (DQN)** is probably one of the most famous deep reinforcement learning algorithms nowadays, which uses a core idea of **Q-learning** ([Watkins and Dayan, 1992](http://www.gatsby.ucl.ac.uk/~dayan/papers/cjch.pdf)).  
 Classic Q-learning algorithm contains a function approximator $$Q(s_t, a_t) = \mathbb E[R_t\|s_t, a_t]$$, which predicts *maximum discounted reward if we will perform action `a` in state `s`*. In Q-learning given function approximator represented as a table (called Q-table), where rows - all possible states, columns - all available in-game actions. During learning, such table fills with *maximum discounted rewards* for each action in each state.  
-Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4\times10^{67970}$$ possible states in table, multiplied by the number of actions, which is $$\approx 10^{67961}$$ GB of RAM memory (4 byte float).  
-And that is where comes Deep Q-Network, replacing huge and hulking Q-table with relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (example is shown in figure 5). When rewards for all possible actions in current state recieved, it becomes really easy to play - just choose an action with the highest expected reward!  
-Q-function can be represented as a recurrent equation, also called **Bellman equation**:
+Since we will learn from raw screen pixels, even with resizing and preprocessing game screen there will be an extremely huge number of all possible states in Q-table. Concretely, in our case, where will be $$256^{84 \cdot 84 \cdot 4}$$ $$\approx  1.4\times10^{67970}$$ possible states in a table, multiplied by the number of actions, which is $$\approx 10^{67961}$$ GB of RAM memory (4-byte float).  
+And that is where comes Deep Q-Network, replacing huge and hulking Q-table with a relatively small deep neural network. The main idea of DQN is to compress Q-table by learning to recognize in-game objects and their behavior, in order to predict **reward for each action** given the *state* (the example is shown in figure 5). When rewards for all possible actions in the current state received, it becomes really easy to play - just choose an action with the highest expected reward!  
+Q-function can be represented as a recurrent equation, which is also called **Bellman equation**:
 
 $$Q(s_t, a_t) = r_t + \gamma max_{a_{t+1}} Q(s_{t+1}, a_{t+1}),$$
 
@@ -71,12 +70,12 @@ $$Q(s_t, a_t)$$ is our current prediction $$\hat y$$.
 Intuitively, current loss function optimizes neural network so it's predictions will be equal to the reward $$r_t$$ for given state $$t$$ **plus** maximum **expected** discounted reward $$R_{t+1}$$ for the next state $$t+1$$.  
 And now, if you will think about maximum discounted reward for the next state $$t+1$$, you will find that it also includes maximum discounted reward $$R_{t+2}$$ for the next state $$t+2$$ and so on up to the terminal state.
 
-**Ok. But how it can work?** That seems to be insane, especially for those, who are familiar with supervised learning. Of course, at early iterations, an approximation of $$Q(s_{t+1}, a_{t+1})$$ will return an absolute garbage, however, over a long time of training (with right hyperparameters and other DQN tricks), the prediction of future expected rewards will become more and more accurate, and finally, it will converge ([a proof of shallow Q-learning convergence](http://users.isr.ist.utl.pt/~mtjspaan/readingGroup/ProofQlearning.pdf)).
+**Ok. But how it can work?** That seems to be insane, especially for those, who are familiar with supervised learning. Of course, at early iterations, an approximation of $$Q(s_{t+1}, a_{t+1})$$ will return an absolute garbage, however, over a long time of training (with right hyper-parameters and other DQN tricks), the prediction of future expected rewards will become more and more accurate, and finally, it will converge ([a proof of shallow Q-learning convergence](http://users.isr.ist.utl.pt/~mtjspaan/readingGroup/ProofQlearning.pdf)).
 
-**Asynchronous one-step and n-step Q-Learning**. The main change they made to DQN since 2013, as you might might guess - is asynchronous training in multiple game environments at the same time. Such approach significantly speeds-up convergence, and allows us to train it on a single multicore CPU instead of GPU (compared to vanilla DQN and other deep RL methods). Another important change is in replay memory - there is no need in replaying past experience anymore, since parallel actor-learners happens to be in a different independent environments, which leads to a similar stabilizing effect, as in case of training on random samples from past experience (such hack is necessary for reducing temporal correlations between consecutive updates; for details of experience replay techniques you may read through [Prioritized Experience Replay, T. Schaul et al., 2016](https://arxiv.org/abs/1511.05952)).
+**Asynchronous one-step and n-step Q-Learning**. The main change they made to DQN since 2013, as you might guess - is asynchronous training in multiple game environments at the same time. Such approach significantly speeds-up convergence, and allows us to train it on a single multi-core CPU instead of GPU (compared to vanilla DQN and other deep RL methods). Another important change is in replay memory - there is no need in replaying past experience anymore, since parallel actor-learners happens to be in a different independent environments, which leads to a similar stabilizing effect, as in case of training on random samples from past experience (such hack is necessary for reducing temporal correlations between consecutive updates; for details of experience replay techniques you may read through [Prioritized Experience Replay, T. Schaul et al., 2016](https://arxiv.org/abs/1511.05952)).
 
-They have presented two versions of asynchronous deep Q-Learning: *one-step* and *n-step* Q-learning. The main difference, is that n-step explicitly computes n-step returns by predicting expected discounted future reward only after `n` steps, backpropagating predicted value on earlier actions, instead of predicting it after each step.  
-In this topic I will walk through one-step version.
+They have presented two versions of asynchronous deep Q-Learning: *one-step* and *n-step* Q-learning. The main difference is that n-step explicitly computes returns by predicting expected discounted future reward only after `n` steps, back-propagating predicted value on earlier actions, instead of predicting it after each step.  
+In this topic, I will walk through one-step version.
 {% include image.html
     img="/assets/posts/async-deeprl/onestep_alg.jpg"
     title="Asynchronous Q-Learning algorithm pseudo-code"
@@ -84,7 +83,7 @@ In this topic I will walk through one-step version.
 %}
 
 ## Tips and Tricks
-**Action repeat** is a nice feature that will help to speed-up training process. Since neighbour frames are almost identical to each other, we will repeat last action on the next 4 frames.  
+**Action repeat** is a nice feature that will help to speed-up training process. Since neighbor frames are almost identical to each other, we will repeat the last action on the next 4 frames.  
 *Keep in mind, that some games have "rounds" (most Atari games do), in order to avoid repeating actions from last game in new one, and not to predict expected future rewards for current game, based on state from the next game, we should handle end of these rounds as terminal states*.  
 Action repeat implementation code ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/environment.py#L143)):
 
@@ -118,12 +117,12 @@ In DeepMind paper they solve this problem by taking last four screen images, con
 %}
 
 
-**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or **exploring new one**, maybe better that current. In current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution taken three values: `{0.1, 0.01, 0.5}` with probabilities `{0.4, 0.3, 0.3}` respectively, separately for each learner thread. During course of training, inital $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
+**Exploration vs. Exploitation** is yet another well-known challenge in reinforcement learning. It's about a struggle between **following already discovered strategy** or **exploring new one**, maybe better than current. In the current paper, they sampled the minimum exploration rate $$\epsilon$$ from a distribution taken three values: `{0.1, 0.01, 0.5}` with probabilities `{0.4, 0.3, 0.3}` respectively, separately for each learner thread. During the course of training, initial $$\epsilon$$ anneals from 1 to sampled minimum epsilon value over 4 millions of global frames.
 
 ## TensorFlow implementation<a name="Implementation"></a>
 TensorFlow sometimes feels a bit low level and verbose. There are a lot of wrappers to reduce code, few of them: [keras](https://keras.io/) (used in this post), [slim](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/slim), [tflearn](http://tflearn.org/getting_started/).
 
-**Agent** is the first thing we should start from our implementation. It consists of two models - **online model** and **target model**. First one predicts, and learns to predict rewards per action for given state; second one predicts expected future rewards for the next state, used for future reward discounting. Periodically, online model updates target model by copying it's weights. Such approach was introduced in [Deep Reinforcement Learning with Double Q-learning, van Hasselt et al. (2015)](https://arxiv.org/abs/1509.06461) paper, and aims to impove DQN performance. 
+**Agent** is the first thing we should start from our implementation. It consists of two models - **online model** and **target model**. First one predicts, and learns to predict rewards per action for given state; the second one predicts expected future rewards for the next state, used for future reward discounting. Periodically, online model updates target model by copying its weights. Such approach was introduced in [Deep Reinforcement Learning with Double Q-learning, van Hasselt et al. (2015)](https://arxiv.org/abs/1509.06461) paper, and aims to improve DQN performance. 
 
 First, let's define network architecture ([full code](https://github.com/dbobrenko/async-deeprl/blob/master/asyncrl/agent.py)):
 
@@ -251,7 +250,7 @@ for t in thds:
 
 ## Results
 
-Here it is some results obtained after training on 80 millions of frames (shown on figure 5 and 6 - agent's progress during training and demonstation of it's play respectively):
+Here it is some results obtained after training on 80 millions of frames (shown on figure 5 and 6 - agent's progress during training and demonstration of its play respectively):
 
 
 
@@ -268,8 +267,8 @@ Figure 6: Agent, trained over 80 millions of frames, plays Atari SpaceInvaders.
 </div>
 
 
-**Pretrained model** on SpaceInvaders can be downloaded from [here](https://drive.google.com/file/d/0By6rAKVSThTxRGYwRWlfM09MZTg/view). The model was trained asynchronously in 8 threads over 40 hours on GTX 980 Ti GPU, in total of 80 millions of frames.  
-After model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
+**Pretrained model** on SpaceInvaders can be downloaded from [here](https://drive.google.com/file/d/0By6rAKVSThTxRGYwRWlfM09MZTg/view). The model has trained asynchronously in 8 threads over 40 hours on GTX 980 Ti GPU, in the total of 80 millions of frames.  
+After the model is downloaded and unpacked, you can evaluate it by running (by default result will be saved to *eval/SpaceInvaders-v0/*):
 
 ```bash
 python run_dqn.py --logdir 'model/folder/path' --eval
