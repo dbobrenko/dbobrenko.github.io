@@ -3,8 +3,8 @@ layout: post
 title: About
 ---
 
-I am **Dmitry Bobrenko**, a Research Engineer at Samsung R&D Institute. 
-My research interests lie in Reinforcement Learning, Deep Learning and other AI related fields.
+I am Dmytro Bobrenko, currently a Research Engineer at Samsung Research Ukraine. 
+Working on some cool stuff in Deep and Reinforcement Learning fields.
 
 ## Contacts
 <d.bobrenko@gmail.com>  
